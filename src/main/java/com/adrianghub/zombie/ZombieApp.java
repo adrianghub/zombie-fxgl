@@ -1,4 +1,11 @@
 package com.adrianghub.zombie;
 
-public class ZombieApp {
+import com.almasb.fxgl.app.GameApplication;
+import com.almasb.fxgl.app.GameSettings;
+
+public class ZombieApp extends GameApplication {
+    @Override
+    protected void initSettings(GameSettings settings) {
+
+    }
 }
