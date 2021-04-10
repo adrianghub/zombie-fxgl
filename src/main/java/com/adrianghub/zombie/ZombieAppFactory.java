@@ -12,6 +12,7 @@ import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.util.Duration;
 
 import static com.adrianghub.zombie.ZombieApp.EntityType.*;
 import static com.almasb.fxgl.dsl.FXGL.*;
@@ -51,6 +52,13 @@ public class ZombieAppFactory implements EntityFactory {
                 .collidable()
                 .with(new ProjectileComponent(direction, 500))
                 .with(new OffscreenCleanComponent())
+                .build();
+    }
+
+    @Spawns("explosion")
+    public Entity newExplosion(SpawnData data) {
+        return entityBuilder(data)
+                .view(texture("explosion.png").toAnimatedTexture(16, Duration.seconds(0.66)).play())
                 .build();
     }
 }

@@ -76,6 +76,8 @@ public class ZombieApp extends GameApplication {
     @Override
     protected void initPhysics() {
         onCollisionBegin(ZOMBIE, BULLET, (zombie, bullet) -> {
+            spawn("explosion", zombie.getPosition());
+
             zombie.removeFromWorld();
             bullet.removeFromWorld();
             getWorldProperties().increment("score", +100);
