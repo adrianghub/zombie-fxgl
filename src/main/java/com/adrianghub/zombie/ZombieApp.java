@@ -4,16 +4,19 @@ import com.adrianghub.zombie.components.SurvivorComponent;
 import com.almasb.fxgl.app.GameApplication;
 import com.almasb.fxgl.app.GameSettings;
 
+import com.almasb.fxgl.core.math.FXGLMath;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.SpawnData;
 import javafx.animation.Interpolator;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 import javafx.util.Duration;
 
+import java.util.Map;
 import java.util.Random;
 
+import static com.adrianghub.zombie.ZombieApp.EntityType.*;
 import static com.almasb.fxgl.dsl.FXGL.*;
 
 public class ZombieApp extends GameApplication {
@@ -22,6 +25,17 @@ public class ZombieApp extends GameApplication {
 
     public enum EntityType {
         SURVIVOR, ZOMBIE, BULLET, WALL
+    }
+
+    private static final String[] deathMessage = {
+            "Sooo close...",
+            "Ah, shit...Here we go again",
+            "You're a dead meat",
+            "Come back later :)",
+    };
+
+    private static String getRandomDeathMessage() {
+        return deathMessage[FXGLMath.random(0, 3)];
     }
 
     @Override
@@ -61,10 +75,33 @@ public class ZombieApp extends GameApplication {
 
     @Override
     protected void initPhysics() {
-        onCollisionBegin(EntityType.ZOMBIE, EntityType.BULLET, (zombie, bullet) -> {
+        onCollisionBegin(ZOMBIE, BULLET, (zombie, bullet) -> {
             zombie.removeFromWorld();
             bullet.removeFromWorld();
+            getWorldProperties().increment("score", +100);
         });
+
+        onCollisionBegin(SURVIVOR, ZOMBIE, (survivor, zombie) -> {
+            zombie.removeFromWorld();
+            showMessage(getRandomDeathMessage() + " \nPoints: " + getWorldProperties().getInt("score"), () -> getGameController().startNewGame());
+        });
+    }
+
+    @Override
+    protected void initGameVars(Map<String, Object> vars) {
+        vars.put("score", 0);
+    }
+
+    @Override
+    protected void initUI() {
+        Text textScore = getUIFactoryService().newText("", Color.WHITE, 32);
+        textScore.setTranslateX(500);
+        textScore.setTranslateY(50);
+        textScore.setStroke(Color.GOLD);
+
+        getGameScene().addUINode(textScore);
+
+        textScore.textProperty().bind(getWorldProperties().intProperty("score").asString());
     }
 
     public static void main(String[] args) {
