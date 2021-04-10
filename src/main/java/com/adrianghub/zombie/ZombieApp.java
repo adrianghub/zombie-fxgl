@@ -8,6 +8,7 @@ import com.almasb.fxgl.core.math.FXGLMath;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.SpawnData;
 import javafx.animation.Interpolator;
+import javafx.beans.binding.StringBinding;
 import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
@@ -84,18 +85,28 @@ public class ZombieApp extends GameApplication {
         });
 
         onCollisionBegin(SURVIVOR, ZOMBIE, (survivor, zombie) -> {
+            Duration userTime = Duration.seconds(getd("time"));
+            Integer userScore = geti("score");
+
             zombie.removeFromWorld();
-            showMessage(getRandomDeathMessage() + " \nPoints: " + getWorldProperties().getInt("score"), () -> getGameController().startNewGame());
+            showMessage("\n" + getRandomDeathMessage() +
+                    String.format("\n\nPoints: %d", userScore) +
+                    String.format("\n\nTime: %.2f sec!", userTime.toSeconds()),
+                    () -> getGameController().startNewGame());
         });
     }
 
     @Override
     protected void initGameVars(Map<String, Object> vars) {
+        vars.put("time", 0.0);
         vars.put("score", 0);
     }
 
     @Override
     protected void initUI() {
+        StringBinding playerScore = getWorldProperties().intProperty("score").asString();
+        StringBinding playerTime = getWorldProperties().doubleProperty("time").asString("Time:  %.2f");
+
         Text textScore = getUIFactoryService().newText("", Color.WHITE, 32);
         textScore.setTranslateX(500);
         textScore.setTranslateY(50);
@@ -103,7 +114,20 @@ public class ZombieApp extends GameApplication {
 
         getGameScene().addUINode(textScore);
 
-        textScore.textProperty().bind(getWorldProperties().intProperty("score").asString());
+        Text timeCounter = getUIFactoryService().newText("", Color.WHITE, 32);
+        timeCounter.setTranslateX(800);
+        timeCounter.setTranslateY(50);
+        timeCounter.setStroke(Color.GOLD);
+
+        getGameScene().addUINode(timeCounter);
+
+        textScore.textProperty().bind(playerScore);
+        timeCounter.textProperty().bind(playerTime);
+    }
+
+    @Override
+    protected void onUpdate(double tpf) {
+        inc("time", tpf);
     }
 
     public static void main(String[] args) {
