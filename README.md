@@ -1,2 +1,16 @@
-# zombie-fxgl
-Survival game based on Java FXGL Engine
+# SURVIVOR
+
+JAVA | JavaFX | FXGL
+
+Alone against hordes of zombies...
+
+## Run from terminal
+
+``./gradlew run``
+
+## Run from IntelliJ
+
+"*View*" -> "*Tool Windows*" -> "*Gradle*" -> double-click option "*run*" as shown below:
+
+![gradle snippet](src/main/resources/assets/gh/gradle-snipp.png)
+
