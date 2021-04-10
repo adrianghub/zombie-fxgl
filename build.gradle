@@ -1,6 +1,7 @@
 plugins {
     id 'java'
-    id 'org.openjfx.javafxplugin' version '0.0.8'
+    id 'application'
+    id 'org.openjfx.javafxplugin' version '0.0.9'
 }
 
 javafx {
@@ -10,6 +11,8 @@ javafx {
 
 group 'org.example'
 version '1.0-SNAPSHOT'
+
+mainClassName = 'com.adrianghub.zombie.ZombieApp'
 
 repositories {
     mavenCentral()
