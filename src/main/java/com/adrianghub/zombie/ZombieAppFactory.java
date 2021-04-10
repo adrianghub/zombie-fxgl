@@ -49,7 +49,7 @@ public class ZombieAppFactory implements EntityFactory {
                 .type(BULLET)
                 .viewWithBBox("bullet.png")
                 .collidable()
-                .with(new ProjectileComponent(direction, 1000))
+                .with(new ProjectileComponent(direction, 500))
                 .with(new OffscreenCleanComponent())
                 .build();
     }

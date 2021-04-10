@@ -59,6 +59,14 @@ public class ZombieApp extends GameApplication {
         onKeyDown(KeyCode.SPACE,"Single shot", () -> survivor.getComponent(SurvivorComponent.class).shoot());
     }
 
+    @Override
+    protected void initPhysics() {
+        onCollisionBegin(EntityType.ZOMBIE, EntityType.BULLET, (zombie, bullet) -> {
+            zombie.removeFromWorld();
+            bullet.removeFromWorld();
+        });
+    }
+
     public static void main(String[] args) {
         launch(args);
     }
