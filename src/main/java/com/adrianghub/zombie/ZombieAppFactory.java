@@ -61,4 +61,22 @@ public class ZombieAppFactory implements EntityFactory {
                 .view(texture("explosion.png").toAnimatedTexture(16, Duration.seconds(0.66)).play())
                 .build();
     }
+
+    @Spawns("verticalLava")
+    public Entity newVLava(SpawnData data) {
+        return entityBuilder(data)
+                .type(LAVA)
+                .viewWithBBox(new Rectangle(10, getAppHeight(), Color.ORANGERED))
+                .collidable()
+                .build();
+    }
+
+    @Spawns("horizontalLava")
+    public Entity newHLava(SpawnData data) {
+        return entityBuilder(data)
+                .type(LAVA)
+                .viewWithBBox(new Rectangle(getAppWidth(), 10, Color.RED))
+                .collidable()
+                .build();
+    }
 }

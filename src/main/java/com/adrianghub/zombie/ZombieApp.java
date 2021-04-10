@@ -25,7 +25,7 @@ public class ZombieApp extends GameApplication {
     private Entity survivor;
 
     public enum EntityType {
-        SURVIVOR, ZOMBIE, BULLET, WALL
+        SURVIVOR, ZOMBIE, BULLET, LAVA
     }
 
     private static final String[] deathMessage = {
@@ -53,6 +53,12 @@ public class ZombieApp extends GameApplication {
         getGameWorld().addEntityFactory(new ZombieAppFactory());
 
         getGameScene().setBackgroundColor(Color.color(0, 0, 0.05, 0.5));
+
+        spawn("verticalLava", 0, 0);
+        spawn("verticalLava", getAppWidth() - 10, 0);
+
+        spawn("horizontalLava", 0, 0);
+        spawn("horizontalLava", 0, getAppHeight() - 10);
 
         this.survivor = spawn("survivor", getAppWidth() / 2 - 15, getAppHeight() / 2 - 15);
 
@@ -127,7 +133,20 @@ public class ZombieApp extends GameApplication {
 
     @Override
     protected void onUpdate(double tpf) {
+        Duration userTime = Duration.seconds(getd("time"));
+        Integer userScore = geti("score");
+
         inc("time", tpf);
+
+        if (survivor.getRightX() > getAppWidth() ||
+                survivor.getBottomY() > getAppHeight() ||
+            survivor.getX() <= 0 || survivor.getY() <= 0
+        ) {
+            showMessage("\n" + getRandomDeathMessage() +
+                            String.format("\n\nPoints: %d", userScore) +
+                            String.format("\n\nTime: %.2f sec!", userTime.toSeconds()),
+                    () -> getGameController().startNewGame());
+        }
     }
 
     public static void main(String[] args) {
