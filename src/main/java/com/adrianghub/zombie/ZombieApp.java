@@ -1,11 +1,14 @@
 package com.adrianghub.zombie;
 
+import com.adrianghub.zombie.components.SurvivorComponent;
 import com.almasb.fxgl.app.GameApplication;
 import com.almasb.fxgl.app.GameSettings;
 
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.SpawnData;
 import javafx.animation.Interpolator;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
@@ -46,6 +49,14 @@ public class ZombieApp extends GameApplication {
 
             spawnWithScale(e, Duration.seconds(0.3), Interpolator.EASE_OUT);
         }, Duration.seconds(2));
+    }
+
+    @Override
+    protected void initInput() {
+        onKey(KeyCode.W, () -> survivor.getComponent(SurvivorComponent.class).move());
+        onKey(KeyCode.A, () -> survivor.getComponent(SurvivorComponent.class).turnLeft());
+        onKey(KeyCode.D, () -> survivor.getComponent(SurvivorComponent.class).turnRight());
+        onKeyDown(KeyCode.SPACE,"Single shot", () -> survivor.getComponent(SurvivorComponent.class).shoot());
     }
 
     public static void main(String[] args) {
