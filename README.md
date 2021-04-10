@@ -6,6 +6,8 @@ Alone against hordes of zombies...
 
 ## Run from terminal
 
+``./gradlew build --refresh-dependencies``
+
 ``./gradlew run``
 
 ## Run from IntelliJ
