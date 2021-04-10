@@ -4,7 +4,12 @@ import com.almasb.fxgl.app.GameApplication;
 import com.almasb.fxgl.app.GameSettings;
 
 import com.almasb.fxgl.entity.Entity;
+import com.almasb.fxgl.entity.SpawnData;
+import javafx.animation.Interpolator;
 import javafx.scene.paint.Color;
+import javafx.util.Duration;
+
+import java.util.Random;
 
 import static com.almasb.fxgl.dsl.FXGL.*;
 
@@ -32,6 +37,15 @@ public class ZombieApp extends GameApplication {
         getGameScene().setBackgroundColor(Color.color(0, 0, 0.05, 0.5));
 
         this.survivor = spawn("survivor", getAppWidth() / 2 - 15, getAppHeight() / 2 - 15);
+
+        Random random = new Random();
+
+        run(() -> {
+
+            Entity e = getGameWorld().create("wanderer", new SpawnData(random.nextInt(getAppWidth()), random.nextInt(getAppHeight())));
+
+            spawnWithScale(e, Duration.seconds(0.3), Interpolator.EASE_OUT);
+        }, Duration.seconds(2));
     }
 
     public static void main(String[] args) {
