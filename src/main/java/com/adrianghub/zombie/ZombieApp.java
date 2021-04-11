@@ -136,9 +136,9 @@ public class ZombieApp extends GameApplication {
         timeCounter.textProperty().bind(playerTime);
     }
 
-    public Text setUIText (int x) {
+    public Text setUIText (int xPosition) {
         Text textUI = getUIFactoryService().newText("", Color.WHITE, 32);
-        textUI.setTranslateX(x);
+        textUI.setTranslateX(xPosition);
         textUI.setTranslateY(50);
         textUI.setStroke(Color.GOLD);
 
