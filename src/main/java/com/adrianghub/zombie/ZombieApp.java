@@ -153,7 +153,7 @@ public class ZombieApp extends GameApplication {
 
         getWorldProperties().addListener("score", (prev, now) -> animationBuilder()
                 .duration(Duration.seconds(0.5))
-                .interpolator(Interpolators.BOUNCE.EASE_OUT())
+                .interpolator(Interpolators.BOUNCE.EASE_IN())
                 .repeat(2)
                 .autoReverse(true)
                 .scale(textUI)
