@@ -2,23 +2,18 @@ package com.adrianghub.zombie;
 
 import com.adrianghub.zombie.components.SurvivorComponent;
 import com.almasb.fxgl.animation.Interpolators;
-import com.almasb.fxgl.dsl.components.ExpireCleanComponent;
-import com.almasb.fxgl.dsl.components.OffscreenCleanComponent;
-import com.almasb.fxgl.dsl.components.ProjectileComponent;
-import com.almasb.fxgl.dsl.components.RandomMoveComponent;
+import com.almasb.fxgl.dsl.components.*;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.EntityFactory;
 import com.almasb.fxgl.entity.SpawnData;
 import com.almasb.fxgl.entity.Spawns;
 import com.almasb.fxgl.ui.FontType;
-import javafx.animation.Interpolator;
+import com.almasb.fxgl.ui.ProgressBar;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
-
-import java.awt.*;
 
 import static com.adrianghub.zombie.ZombieApp.EntityType.*;
 import static com.almasb.fxgl.dsl.FXGL.*;
@@ -27,9 +22,16 @@ public class ZombieAppFactory implements EntityFactory {
 
     @Spawns("survivor")
     public Entity newSurvivor(SpawnData data) {
+
+        var hp = new HealthIntComponent(5);
+
+        var hpView = createHpView(hp, Color.LIMEGREEN, 60, -45, 15 , 90);
+
         return entityBuilder(data)
                 .type(SURVIVOR)
                 .viewWithBBox("survivor.png")
+                .view(hpView)
+                .with(hp)
                 .with(new SurvivorComponent())
                 .collidable()
                 .build();
@@ -38,14 +40,49 @@ public class ZombieAppFactory implements EntityFactory {
     @Spawns("wanderer")
     public Entity newWanderer(SpawnData data) {
 
+        var hp = new HealthIntComponent(3);
+
+        var hpView = createHpView(hp, Color.VIOLET);
+
         return entityBuilder(data)
                 .type(ZOMBIE)
                 .viewWithBBox("zombie-wan.png")
-                .collidable()
+                .view(hpView)
+                .with(hp)
                 .with(new RandomMoveComponent(
                         new Rectangle2D(0, 0,
-                                getAppWidth()+100, getAppHeight()+100), 150))
+                                getAppWidth() + 100, getAppHeight() + 100), 150))
+                .collidable()
                 .build();
+    }
+
+
+    public ProgressBar createHpView(HealthIntComponent hp, Color color) {
+        var hpView = new ProgressBar(false);
+
+        hpView.setFill(color);
+        hpView.setMaxValue(hp.getValue());
+        hpView.setWidth(48);
+        hpView.setTranslateY(-10);
+        hpView.currentValueProperty().bind(hp.valueProperty());
+
+        return hpView;
+
+    }
+
+    public ProgressBar createHpView(HealthIntComponent hp, Color color, int width, double xPosition, double yPosition, double rotation) {
+        var hpView = new ProgressBar(false);
+
+        hpView.setFill(color);
+        hpView.setMaxValue(hp.getValue());
+        hpView.setWidth(width);
+        hpView.setTranslateX(xPosition);
+        hpView.setTranslateY(yPosition);
+        hpView.setRotate(rotation);
+        hpView.currentValueProperty().bind(hp.valueProperty());
+
+        return hpView;
+
     }
 
     @Spawns("bullet")

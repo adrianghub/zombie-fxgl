@@ -5,6 +5,7 @@ import com.almasb.fxgl.animation.Interpolators;
 import com.almasb.fxgl.app.GameApplication;
 import com.almasb.fxgl.app.GameSettings;
 import com.almasb.fxgl.core.math.FXGLMath;
+import com.almasb.fxgl.dsl.components.HealthIntComponent;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.SpawnData;
 import javafx.animation.Interpolator;
@@ -90,10 +91,17 @@ public class ZombieApp extends GameApplication {
     protected void initPhysics() {
         onCollisionBegin(ZOMBIE, BULLET, (zombie, bullet) -> {
 
-            spawn("textScore", new SpawnData(zombie.getPosition()).put("text", "+1 kill"));
+            var hp = zombie.getComponent(HealthIntComponent.class);
 
-            killZombie(zombie);
+            if (hp.getValue() > 1) {
+                bullet.removeFromWorld();
+                hp.damage(1);
+                return;
+            }
+
+            spawn("textScore", new SpawnData(zombie.getPosition()).put("text", "+1 kill"));
             bullet.removeFromWorld();
+            killZombie(zombie);
 
             Entity e = getGameWorld().create("bloodTrace", new SpawnData(zombie.getPosition()));
 
@@ -106,7 +114,15 @@ public class ZombieApp extends GameApplication {
 
             killZombie(zombie);
 
+            var hp = survivor.getComponent(HealthIntComponent.class);
+
+            if (hp.getValue() > 1) {
+                hp.damage(1);
+                return;
+            }
+
             survivor.setPosition(getAppWidth() / 2.0 - 15, getAppHeight() / 2.0 - 15);
+            hp.setValue(5);
 
             inc("lives", -1);
         });
@@ -124,8 +140,8 @@ public class ZombieApp extends GameApplication {
     protected void initGameVars(Map<String, Object> vars) {
         vars.put("time", 0.0);
         vars.put("score", 0);
-        vars.put("lives", 5);
-        vars.put("ammo", 500);
+        vars.put("lives", 3);
+        vars.put("ammo", 999);
     }
 
     @Override
