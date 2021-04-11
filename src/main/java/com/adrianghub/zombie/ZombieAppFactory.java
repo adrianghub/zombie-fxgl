@@ -23,7 +23,7 @@ public class ZombieAppFactory implements EntityFactory {
     @Spawns("survivor")
     public Entity newSurvivor(SpawnData data) {
 
-        var hp = new HealthIntComponent(5);
+        var hp = new HealthIntComponent(3);
 
         var hpView = createHpView(hp, Color.LIMEGREEN, 60, -45, 15 , 90);
 
@@ -40,7 +40,7 @@ public class ZombieAppFactory implements EntityFactory {
     @Spawns("wanderer")
     public Entity newWanderer(SpawnData data) {
 
-        var hp = new HealthIntComponent(3);
+        var hp = new HealthIntComponent(1);
 
         var hpView = createHpView(hp, Color.VIOLET);
 

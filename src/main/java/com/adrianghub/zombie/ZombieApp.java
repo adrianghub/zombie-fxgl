@@ -1,9 +1,14 @@
 package com.adrianghub.zombie;
 
 import com.adrianghub.zombie.components.SurvivorComponent;
+import com.adrianghub.zombie.menu.ZombieMainMenu;
+import com.adrianghub.zombie.service.HighScoreService;
 import com.almasb.fxgl.animation.Interpolators;
 import com.almasb.fxgl.app.GameApplication;
 import com.almasb.fxgl.app.GameSettings;
+import com.almasb.fxgl.app.scene.FXGLMenu;
+import com.almasb.fxgl.app.scene.SceneFactory;
+import com.almasb.fxgl.app.scene.SimpleGameMenu;
 import com.almasb.fxgl.core.math.FXGLMath;
 import com.almasb.fxgl.dsl.components.HealthIntComponent;
 import com.almasb.fxgl.entity.Entity;
@@ -14,10 +19,13 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.Random;
 
+import static com.adrianghub.zombie.Config.DEMO_SCORE;
+import static com.adrianghub.zombie.Config.SAVE_FILE_NAME;
 import static com.adrianghub.zombie.ZombieApp.EntityType.*;
 import static com.almasb.fxgl.dsl.FXGL.*;
 
@@ -43,9 +51,31 @@ public class ZombieApp extends GameApplication {
     @Override
     protected void initSettings(GameSettings settings) {
         settings.setTitle("Zombie Invasion");
+        settings.setVersion("0.1");
         settings.setFontUI("zombie.ttf");
         settings.setWidth(1024);
         settings.setHeight(720);
+        settings.addEngineService(HighScoreService.class);
+        settings.setMainMenuEnabled(true);
+        settings.setSceneFactory(new SceneFactory() {
+            @Override
+            @NotNull
+            public FXGLMenu newMainMenu() {
+                return new ZombieMainMenu();
+            }
+
+            @Override
+            @NotNull
+            public FXGLMenu newGameMenu() {
+                return new SimpleGameMenu();
+            }
+        });
+    }
+
+    @Override
+    protected void onPreInit() {
+        // preload explosion sprite sheet
+        getAssetLoader().loadTexture("explosion.png", 80 * 48, 80);
     }
 
     @Override
@@ -62,6 +92,18 @@ public class ZombieApp extends GameApplication {
         spawn("horizontalLava", 0, getAppHeight() - 10);
 
         this.survivor = spawn("survivor", getAppWidth() / 2.0 - 15, getAppHeight() / 2.0 - 15);
+
+        getWorldProperties().<Integer>addListener("score", (prev, now) -> {
+            getService(HighScoreService.class).setScore(now);
+
+            if (now >= DEMO_SCORE)
+                gameOver();
+        });
+
+        getWorldProperties().<Integer>addListener("lives", (prev, now) -> {
+            if (now == 0)
+                gameOver();
+        });
 
         Random random = new Random();
 
@@ -115,16 +157,16 @@ public class ZombieApp extends GameApplication {
             killZombie(zombie);
 
             var hp = survivor.getComponent(HealthIntComponent.class);
+            hp.setValue(hp.getValue() - 1);
 
-            if (hp.getValue() > 1) {
-                hp.damage(1);
-                return;
+            if (hp.isZero()) {
+                killZombie(zombie);
+
+                inc("lives", -1);
+
+                survivor.setPosition(getAppWidth() / 2.0 - 15, getAppHeight() / 2.0 - 15);
+                hp.setValue(3);
             }
-
-            survivor.setPosition(getAppWidth() / 2.0 - 15, getAppHeight() / 2.0 - 15);
-            hp.setValue(5);
-
-            inc("lives", -1);
         });
     }
 
@@ -140,7 +182,7 @@ public class ZombieApp extends GameApplication {
     protected void initGameVars(Map<String, Object> vars) {
         vars.put("time", 0.0);
         vars.put("score", 0);
-        vars.put("lives", 3);
+        vars.put("lives", 1);
         vars.put("ammo", 999);
     }
 
@@ -161,6 +203,19 @@ public class ZombieApp extends GameApplication {
         lifeScore.textProperty().bind(playerLife);
         timeCounter.textProperty().bind(playerTime);
         ammoQuantity.textProperty().bind(playerAmmo);
+
+        Text introMessage = getUIFactoryService().newText("Alone against hordes of zombies...", Color.DARKRED, 38);
+
+        addUINode(introMessage);
+
+        centerText(introMessage);
+
+        animationBuilder()
+                .duration(Duration.seconds(2))
+                .autoReverse(true)
+                .repeat(2)
+                .fadeIn(introMessage)
+                .buildAndPlay();
     }
 
     public Text setUIScoreText (int xPosition) {
@@ -204,8 +259,7 @@ public class ZombieApp extends GameApplication {
 
     @Override
     protected void onUpdate(double tpf) {
-        Duration userTime = Duration.seconds(getd("time"));
-        Integer userScore = geti("score");
+
 
         inc("time", tpf);
 
@@ -213,21 +267,32 @@ public class ZombieApp extends GameApplication {
                 survivor.getBottomY() > getAppHeight() ||
             survivor.getX() <= 0 || survivor.getY() <= 0
         ) {
+
+            var hp = survivor.getComponent(HealthIntComponent.class);
+            hp.setValue(hp.getValue() - 1);
             survivor.setPosition(getAppWidth() / 2.0 - 15, getAppHeight() / 2.0 - 15);
 
-            inc("lives", -1);
-        }
+            if (hp.isZero()) {
 
-        if (getWorldProperties().getInt("lives") <= 0) {
-            endGameMessage(userTime, userScore);
+                inc("lives", -1);
+
+                hp.setValue(3);
+            }
         }
     }
 
-    private void endGameMessage(Duration userTime, Integer userScore) {
-        showMessage("\n" + getRandomDeathMessage() +
-                        String.format("\n\nPoints: %d", userScore) +
-                        String.format("\n\nTime: %.2f sec!", userTime.toSeconds()),
-                () -> getGameController().startNewGame());
+    private void gameOver() {
+        Duration userTime = Duration.seconds(getd("time"));
+
+        getDialogService().showInputBox(getRandomDeathMessage() + "\n\nPoints: " + geti("score") +
+                String.format("\nTime: %.2f sec!", userTime.toSeconds()) +
+                "\n\nEnter your name", s -> s.matches("[a-zA-Z]*"), name -> {
+            getService(HighScoreService.class).commit(name);
+
+            getSaveLoadService().saveAndWriteTask(SAVE_FILE_NAME).run();
+
+            getGameController().gotoMainMenu();
+        });
     }
 
     public static void main(String[] args) {
