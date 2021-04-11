@@ -4,12 +4,10 @@ import com.adrianghub.zombie.components.SurvivorComponent;
 import com.almasb.fxgl.animation.Interpolators;
 import com.almasb.fxgl.app.GameApplication;
 import com.almasb.fxgl.app.GameSettings;
-
 import com.almasb.fxgl.core.math.FXGLMath;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.SpawnData;
 import javafx.animation.Interpolator;
-import javafx.beans.binding.StringBinding;
 import javafx.geometry.Point2D;
 import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
@@ -76,15 +74,23 @@ public class ZombieApp extends GameApplication {
 
     @Override
     protected void initInput() {
-        onKey(KeyCode.W, () -> survivor.getComponent(SurvivorComponent.class).move());
+        onKey(KeyCode.W, () -> survivor.getComponent(SurvivorComponent.class).moveForward());
+        onKey(KeyCode.S, () -> survivor.getComponent(SurvivorComponent.class).moveBackward());
         onKey(KeyCode.A, () -> survivor.getComponent(SurvivorComponent.class).turnLeft());
         onKey(KeyCode.D, () -> survivor.getComponent(SurvivorComponent.class).turnRight());
+
+        onKey(KeyCode.UP, () -> survivor.getComponent(SurvivorComponent.class).moveForward());
+        onKey(KeyCode.DOWN, () -> survivor.getComponent(SurvivorComponent.class).moveBackward());
+        onKey(KeyCode.LEFT, () -> survivor.getComponent(SurvivorComponent.class).turnLeft());
+        onKey(KeyCode.RIGHT, () -> survivor.getComponent(SurvivorComponent.class).turnRight());
         onKeyDown(KeyCode.SPACE,"Single shot", () -> survivor.getComponent(SurvivorComponent.class).shoot());
     }
 
     @Override
     protected void initPhysics() {
         onCollisionBegin(ZOMBIE, BULLET, (zombie, bullet) -> {
+
+            spawn("textScore", new SpawnData(zombie.getPosition()).put("text", "+1 kill"));
 
             killZombie(zombie);
             bullet.removeFromWorld();
@@ -119,30 +125,63 @@ public class ZombieApp extends GameApplication {
         vars.put("time", 0.0);
         vars.put("score", 0);
         vars.put("lives", 5);
+        vars.put("ammo", 500);
     }
 
     @Override
     protected void initUI() {
-        StringBinding playerScore = getWorldProperties().intProperty("score").asString();
-        StringBinding playerLife = getWorldProperties().intProperty("lives").asString("Lives:  %d");
-        StringBinding playerTime = getWorldProperties().doubleProperty("time").asString("Time:  %.2f");
+        var playerScore = getip("score").asString();
+        var playerLife = getip("lives").asString("Lives:  %d");
+        var playerTime = getdp("time").asString("Time:  %.2f");
+        var playerAmmo = getip("ammo").asString("Ammo:  %d");
 
-        Text textScore = setUIText(500);
+        Text score = setUIScoreText(getAppWidth() / 2);
         Text lifeScore = setUIText(70);
-        Text timeCounter = setUIText(800);
+        Text timeCounter = setUIText(getAppWidth() - 270);
+        Text ammoQuantity = setUIText(70, getAppHeight() - 50);
 
-        textScore.textProperty().bind(playerScore);
+
+        score.textProperty().bind(playerScore);
         lifeScore.textProperty().bind(playerLife);
         timeCounter.textProperty().bind(playerTime);
+        ammoQuantity.textProperty().bind(playerAmmo);
+    }
+
+    public Text setUIScoreText (int xPosition) {
+        Text textUI = getUIFactoryService().newText("", Color.WHITE, 32);
+        textUI.setStroke(Color.GOLD);
+
+        getWorldProperties().addListener("score", (prev, now) -> animationBuilder()
+                .duration(Duration.seconds(0.5))
+                .interpolator(Interpolators.BOUNCE.EASE_OUT())
+                .repeat(2)
+                .autoReverse(true)
+                .scale(textUI)
+                .from(new Point2D(1, 1))
+                .to(new Point2D(1.2, 1.2))
+                .buildAndPlay());
+
+        addUINode(textUI, xPosition, 50);
+
+        return textUI;
     }
 
     public Text setUIText (int xPosition) {
         Text textUI = getUIFactoryService().newText("", Color.WHITE, 32);
-        textUI.setTranslateX(xPosition);
-        textUI.setTranslateY(50);
         textUI.setStroke(Color.GOLD);
 
-        getGameScene().addUINode(textUI);
+        addUINode(textUI, xPosition, 50);
+
+        return textUI;
+    }
+
+    public Text setUIText (int xPosition, int yPosition) {
+        Text textUI = getUIFactoryService().newText("", Color.WHITE, 32);
+        textUI.setTranslateX(xPosition);
+        textUI.setTranslateY(yPosition);
+        textUI.setStroke(Color.GOLD);
+
+        addUINode(textUI, xPosition, yPosition);
 
         return textUI;
     }

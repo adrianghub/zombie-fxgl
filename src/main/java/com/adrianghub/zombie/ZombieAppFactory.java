@@ -1,6 +1,7 @@
 package com.adrianghub.zombie;
 
 import com.adrianghub.zombie.components.SurvivorComponent;
+import com.almasb.fxgl.animation.Interpolators;
 import com.almasb.fxgl.dsl.components.ExpireCleanComponent;
 import com.almasb.fxgl.dsl.components.OffscreenCleanComponent;
 import com.almasb.fxgl.dsl.components.ProjectileComponent;
@@ -9,11 +10,15 @@ import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.EntityFactory;
 import com.almasb.fxgl.entity.SpawnData;
 import com.almasb.fxgl.entity.Spawns;
+import com.almasb.fxgl.ui.FontType;
+import javafx.animation.Interpolator;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
+
+import java.awt.*;
 
 import static com.adrianghub.zombie.ZombieApp.EntityType.*;
 import static com.almasb.fxgl.dsl.FXGL.*;
@@ -87,5 +92,25 @@ public class ZombieAppFactory implements EntityFactory {
                 .viewWithBBox(new Rectangle(getAppWidth(), 10, Color.RED))
                 .collidable()
                 .build();
+    }
+
+    @Spawns("textScore")
+    public Entity newTextS(SpawnData data) {
+        String text = data.get("text");
+
+        var e = entityBuilder(data)
+                .view(getUIFactoryService().newText(text, Color.GOLD, FontType.TEXT, 24))
+                .with(new ExpireCleanComponent(Duration.seconds(1)).animateOpacity())
+                .build();
+
+        animationBuilder()
+                .duration(Duration.seconds(1))
+                .interpolator(Interpolators.CUBIC.EASE_OUT())
+                .translate(e)
+                .from(new Point2D(data.getX(), data.getY()))
+                .to(new Point2D(data.getX(), data.getY() - 30))
+                .buildAndPlay();
+
+        return e;
     }
 }
