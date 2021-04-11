@@ -1,6 +1,7 @@
 package com.adrianghub.zombie;
 
 import com.adrianghub.zombie.components.SurvivorComponent;
+import com.almasb.fxgl.dsl.components.ExpireCleanComponent;
 import com.almasb.fxgl.dsl.components.OffscreenCleanComponent;
 import com.almasb.fxgl.dsl.components.ProjectileComponent;
 import com.almasb.fxgl.dsl.components.RandomMoveComponent;
@@ -59,6 +60,14 @@ public class ZombieAppFactory implements EntityFactory {
     public Entity newExplosion(SpawnData data) {
         return entityBuilder(data)
                 .view(texture("explosion.png").toAnimatedTexture(16, Duration.seconds(0.66)).play())
+                .with(new ExpireCleanComponent(Duration.seconds(0.66)))
+                .build();
+    }
+
+    @Spawns("bloodTrace")
+    public Entity newBloodT(SpawnData data) {
+        return entityBuilder(data)
+                .view("blood-trace.png")
                 .build();
     }
 

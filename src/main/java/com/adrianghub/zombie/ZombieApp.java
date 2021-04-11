@@ -1,6 +1,7 @@
 package com.adrianghub.zombie;
 
 import com.adrianghub.zombie.components.SurvivorComponent;
+import com.almasb.fxgl.animation.Interpolators;
 import com.almasb.fxgl.app.GameApplication;
 import com.almasb.fxgl.app.GameSettings;
 
@@ -9,6 +10,7 @@ import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.SpawnData;
 import javafx.animation.Interpolator;
 import javafx.beans.binding.StringBinding;
+import javafx.geometry.Point2D;
 import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
@@ -60,7 +62,7 @@ public class ZombieApp extends GameApplication {
         spawn("horizontalLava", 0, 0);
         spawn("horizontalLava", 0, getAppHeight() - 10);
 
-        this.survivor = spawn("survivor", getAppWidth() / 2 - 15, getAppHeight() / 2 - 15);
+        this.survivor = spawn("survivor", getAppWidth() / 2.0 - 15, getAppHeight() / 2.0 - 15);
 
         Random random = new Random();
 
@@ -83,52 +85,66 @@ public class ZombieApp extends GameApplication {
     @Override
     protected void initPhysics() {
         onCollisionBegin(ZOMBIE, BULLET, (zombie, bullet) -> {
-            spawn("explosion", zombie.getPosition());
 
-            zombie.removeFromWorld();
+            killZombie(zombie);
             bullet.removeFromWorld();
-            getWorldProperties().increment("score", +100);
+
+            Entity e = getGameWorld().create("bloodTrace", new SpawnData(zombie.getPosition()));
+
+            spawnWithScale(e, Duration.seconds(0.3), Interpolators.CUBIC.EASE_IN());
+
+            inc("score", +100);
         });
 
         onCollisionBegin(SURVIVOR, ZOMBIE, (survivor, zombie) -> {
-            Duration userTime = Duration.seconds(getd("time"));
-            Integer userScore = geti("score");
 
-            zombie.removeFromWorld();
-            showMessage("\n" + getRandomDeathMessage() +
-                    String.format("\n\nPoints: %d", userScore) +
-                    String.format("\n\nTime: %.2f sec!", userTime.toSeconds()),
-                    () -> getGameController().startNewGame());
+            killZombie(zombie);
+
+            survivor.setPosition(getAppWidth() / 2.0 - 15, getAppHeight() / 2.0 - 15);
+
+            inc("lives", -1);
         });
+    }
+
+    private void killZombie(Entity zombie) {
+        Point2D explosionSpawnPoint = zombie.getCenter().subtract(64, 64);
+
+        spawn("explosion", explosionSpawnPoint);
+
+        zombie.removeFromWorld();
     }
 
     @Override
     protected void initGameVars(Map<String, Object> vars) {
         vars.put("time", 0.0);
         vars.put("score", 0);
+        vars.put("lives", 5);
     }
 
     @Override
     protected void initUI() {
         StringBinding playerScore = getWorldProperties().intProperty("score").asString();
+        StringBinding playerLife = getWorldProperties().intProperty("lives").asString("Lives:  %d");
         StringBinding playerTime = getWorldProperties().doubleProperty("time").asString("Time:  %.2f");
 
-        Text textScore = getUIFactoryService().newText("", Color.WHITE, 32);
-        textScore.setTranslateX(500);
-        textScore.setTranslateY(50);
-        textScore.setStroke(Color.GOLD);
-
-        getGameScene().addUINode(textScore);
-
-        Text timeCounter = getUIFactoryService().newText("", Color.WHITE, 32);
-        timeCounter.setTranslateX(800);
-        timeCounter.setTranslateY(50);
-        timeCounter.setStroke(Color.GOLD);
-
-        getGameScene().addUINode(timeCounter);
+        Text textScore = setUIText(500);
+        Text lifeScore = setUIText(70);
+        Text timeCounter = setUIText(800);
 
         textScore.textProperty().bind(playerScore);
+        lifeScore.textProperty().bind(playerLife);
         timeCounter.textProperty().bind(playerTime);
+    }
+
+    public Text setUIText (int x) {
+        Text textUI = getUIFactoryService().newText("", Color.WHITE, 32);
+        textUI.setTranslateX(x);
+        textUI.setTranslateY(50);
+        textUI.setStroke(Color.GOLD);
+
+        getGameScene().addUINode(textUI);
+
+        return textUI;
     }
 
     @Override
@@ -142,11 +158,21 @@ public class ZombieApp extends GameApplication {
                 survivor.getBottomY() > getAppHeight() ||
             survivor.getX() <= 0 || survivor.getY() <= 0
         ) {
-            showMessage("\n" + getRandomDeathMessage() +
-                            String.format("\n\nPoints: %d", userScore) +
-                            String.format("\n\nTime: %.2f sec!", userTime.toSeconds()),
-                    () -> getGameController().startNewGame());
+            survivor.setPosition(getAppWidth() / 2.0 - 15, getAppHeight() / 2.0 - 15);
+
+            inc("lives", -1);
         }
+
+        if (getWorldProperties().getInt("lives") <= 0) {
+            endGameMessage(userTime, userScore);
+        }
+    }
+
+    private void endGameMessage(Duration userTime, Integer userScore) {
+        showMessage("\n" + getRandomDeathMessage() +
+                        String.format("\n\nPoints: %d", userScore) +
+                        String.format("\n\nTime: %.2f sec!", userTime.toSeconds()),
+                () -> getGameController().startNewGame());
     }
 
     public static void main(String[] args) {
