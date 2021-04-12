@@ -50,7 +50,7 @@ public class ZombieApp extends GameApplication {
 
     @Override
     protected void initSettings(GameSettings settings) {
-        settings.setTitle("Zombie Invasion");
+        settings.setTitle("Survivor");
         settings.setVersion("0.1");
         settings.setFontUI("zombie.ttf");
         settings.setWidth(1024);

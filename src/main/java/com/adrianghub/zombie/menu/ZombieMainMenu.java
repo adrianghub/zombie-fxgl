@@ -43,14 +43,11 @@ public class ZombieMainMenu extends FXGLMenu {
 
         getContentRoot().getChildren().setAll(new Rectangle(getAppWidth(), getAppHeight()));
 
-        var title = getUIFactoryService().newText(getSettings().getTitle(), Color.WHITE, 46.0);
+        var title = getUIFactoryService().newText(getSettings().getTitle(), Color.WHITE, 56.0);
         title.setStroke(Color.ORANGERED);
         title.setStrokeWidth(1.5);
-
-        if (!FXGL.isMobile()) {
-            title.setEffect(new Bloom(0.6));
-        }
-        centerTextBind(title, getAppWidth() / 2.0, 220);
+        title.setEffect(new Bloom(0.6));
+        centerTextBind(title, getAppWidth() / 2.0, 235);
 
         getContentRoot().getChildren().addAll(title);
 
@@ -168,13 +165,13 @@ public class ZombieMainMenu extends FXGLMenu {
 
     private void instructions() {
         GridPane pane = new GridPane();
-        if (!FXGL.isMobile()) {
-            pane.setEffect(new DropShadow(5, 3.5, 3.5, Color.BLUE));
-        }
+
+        pane.setEffect(new DropShadow(5, 3.5, 3.5, Color.BLUE));
         pane.setHgap(25);
         pane.setVgap(10);
         pane.addRow(0, getUIFactoryService().newText("Movement"), new HBox(4, new KeyView(W), new KeyView(S), new KeyView(A), new KeyView(D)));
-        pane.addRow(1, getUIFactoryService().newText("Shoot"), new KeyView(SPACE));
+        pane.addColumn(2, new HBox(4, new KeyView(UP), new KeyView(DOWN), new KeyView(LEFT), new KeyView(RIGHT)));
+        pane.addRow(2, getUIFactoryService().newText("Shoot"), new KeyView(SPACE));
 
         getDialogService().showBox("Manual", pane, getUIFactoryService().newButton("OK"));
     }
