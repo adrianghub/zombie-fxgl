@@ -47,7 +47,7 @@ public class ZombieMainMenu extends FXGLMenu {
         title.setStroke(Color.ORANGERED);
         title.setStrokeWidth(1.5);
         title.setEffect(new Bloom(0.6));
-        centerTextBind(title, getAppWidth() / 2.0, 235);
+        centerTextBind(title, getAppWidth() / 2.0 - 20, 235);
 
         getContentRoot().getChildren().addAll(title);
 
