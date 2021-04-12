@@ -37,6 +37,8 @@ public class ZombieApp extends GameApplication {
         SURVIVOR, ZOMBIE, BULLET, LAVA
     }
 
+    private static final String demoEndMessage = "You have finally finished the demo. Thank you!";
+
     private static final String[] deathMessage = {
             "Sooo close...",
             "Ah, shit...Here we go again",
@@ -280,12 +282,17 @@ public class ZombieApp extends GameApplication {
         }
     }
 
-    private void gameOver() {
+    public String statsMessage() {
         Duration userTime = Duration.seconds(getd("time"));
 
-        getDialogService().showInputBox(getRandomDeathMessage() + "\n\nPoints: " + geti("score") +
+        return "\n\nPoints: " + geti("score") +
                 String.format("\nTime: %.2f sec!", userTime.toSeconds()) +
-                "\n\nEnter your name", s -> s.matches("[a-zA-Z]*"), name -> {
+                "\n\nEnter your name";
+    }
+
+    public void gameOver() {
+        getDialogService().showInputBox(geti("score") >= DEMO_SCORE ? demoEndMessage + statsMessage() : getRandomDeathMessage() +
+                statsMessage(), s -> s.matches("[a-zA-Z]*"), name -> {
             getService(HighScoreService.class).commit(name);
 
             getSaveLoadService().saveAndWriteTask(SAVE_FILE_NAME).run();
