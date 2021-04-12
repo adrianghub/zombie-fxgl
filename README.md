@@ -1,3 +1,4 @@
+![main-menu](https://user-images.githubusercontent.com/44274979/114446187-3c798880-9bd1-11eb-8c43-ce6ff12968c0.gif)
 # SURVIVOR
 
 JAVA | JavaFX | FXGL
@@ -18,4 +19,4 @@ Alone against hordes of zombies...
 
 ## Main Menu Layout
 
-![main menu caption](https://user-images.githubusercontent.com/44274979/114445904-e86ea400-9bd0-11eb-92de-803339ce2d4e.gif)
+![main menu caption ](https://user-images.githubusercontent.com/44274979/114446203-426f6980-9bd1-11eb-8a37-d40fc90890fb.gif)
