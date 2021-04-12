@@ -20,3 +20,4 @@ Alone against hordes of zombies...
 
 ![main menu layout](src/main/resources/assets/gh/main-menu.png)
 
+https://user-images.githubusercontent.com/44274979/114444941-bdd01b80-9bcf-11eb-9cde-5a888ac82ea7.mp4
