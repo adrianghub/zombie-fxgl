@@ -1,4 +1,3 @@
-![main-menu](https://user-images.githubusercontent.com/44274979/114446187-3c798880-9bd1-11eb-8c43-ce6ff12968c0.gif)
 # SURVIVOR
 
 JAVA | JavaFX | FXGL
