@@ -260,7 +260,6 @@ public class ZombieApp extends GameApplication {
     @Override
     protected void onUpdate(double tpf) {
 
-
         inc("time", tpf);
 
         if (survivor.getRightX() > getAppWidth() ||

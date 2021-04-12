@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 public final class HighScoreService extends EngineService {
 
     private IntegerProperty score = new SimpleIntegerProperty();
-    private int numScoresToKeep = 10;
+    private int numScoresToKeep = 4;
 
     private ArrayList<HighScoreData> highScores = new ArrayList<>();
 
