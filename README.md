@@ -16,3 +16,7 @@ Alone against hordes of zombies...
 
 ![gradle snippet](src/main/resources/assets/gh/gradle-snipp.png)
 
+## Main Menu Layout
+
+![main menu layout](src/main/resources/assets/gh/main-menu.png)
+

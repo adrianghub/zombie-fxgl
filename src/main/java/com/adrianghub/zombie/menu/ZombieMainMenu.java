@@ -178,14 +178,14 @@ public class ZombieMainMenu extends FXGLMenu {
 
     private static class MenuButton extends Parent {
         MenuButton(String name, Runnable action) {
-            var text = getUIFactoryService().newText(name, Color.WHITE, 36.0);
+            var text = getUIFactoryService().newText(name, Color.WHITESMOKE, 36.0);
             text.setStrokeWidth(1.5);
             text.strokeProperty().bind(text.fillProperty());
 
             text.fillProperty().bind(
                     Bindings.when(hoverProperty())
                             .then(Color.DARKRED)
-                            .otherwise(Color.WHITE)
+                            .otherwise(Color.WHITESMOKE)
             );
 
             setOnMouseClicked(e -> action.run());
