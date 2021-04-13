@@ -1,5 +1,6 @@
 package com.adrianghub.zombie;
 
+import com.adrianghub.zombie.components.SpyComponent;
 import com.adrianghub.zombie.components.SurvivorComponent;
 import com.adrianghub.zombie.components.WandererComponent;
 import com.adrianghub.zombie.menu.ZombieMainMenu;
@@ -14,6 +15,8 @@ import com.almasb.fxgl.core.math.FXGLMath;
 import com.almasb.fxgl.dsl.components.HealthIntComponent;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.SpawnData;
+import com.almasb.fxgl.physics.CollisionHandler;
+import com.almasb.fxgl.physics.PhysicsWorld;
 import javafx.animation.Interpolator;
 import javafx.geometry.Point2D;
 import javafx.scene.input.KeyCode;
@@ -25,8 +28,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Map;
 import java.util.Random;
 
-import static com.adrianghub.zombie.Config.DEMO_SCORE;
-import static com.adrianghub.zombie.Config.SAVE_FILE_NAME;
+import static com.adrianghub.zombie.Config.*;
 import static com.adrianghub.zombie.ZombieApp.EntityType.*;
 import static com.almasb.fxgl.dsl.FXGL.*;
 
@@ -35,11 +37,8 @@ public class ZombieApp extends GameApplication {
     private Entity survivor;
     private SurvivorComponent survivorComponent;
 
-    private Entity zombie;
-    private WandererComponent wandererComponent;
-
     public enum EntityType {
-        SURVIVOR, ZOMBIE, BULLET, LAVA
+        SURVIVOR, BULLET, LAVA, WANDERER, SPY
     }
 
     private static final String demoEndMessage = "You have finally finished the demo. Thank you!";
@@ -53,6 +52,10 @@ public class ZombieApp extends GameApplication {
 
     private static String getRandomDeathMessage() {
         return deathMessage[FXGLMath.random(0, 3)];
+    }
+
+    public Entity getSurvivor() {
+        return survivor;
     }
 
     @Override
@@ -115,6 +118,13 @@ public class ZombieApp extends GameApplication {
                 gameOver();
         });
 
+        if (!IS_NO_ZOMBIES) {
+            spawnZombies();
+        }
+
+    }
+
+    private void spawnZombies() {
         Random random = new Random();
 
         run(() -> {
@@ -122,7 +132,9 @@ public class ZombieApp extends GameApplication {
             Entity e = getGameWorld().create("wanderer", new SpawnData(random.nextInt(getAppWidth()), random.nextInt(getAppHeight())));
 
             spawnWithScale(e, Duration.seconds(0.3), Interpolator.EASE_OUT);
-        }, Duration.seconds(2));
+        }, WANDERER_SPAWN_INTERVAL);
+
+        run(() -> spawnFadeIn("spy",new SpawnData(0, 0), Duration.seconds(0.3)), SPY_SPAWN_INTERVAL);
     }
 
     @Override
@@ -141,55 +153,70 @@ public class ZombieApp extends GameApplication {
 
     @Override
     protected void initPhysics() {
-        onCollisionBegin(ZOMBIE, BULLET, (zombie, bullet) -> {
+        PhysicsWorld physics = getPhysicsWorld();
 
-            var hp = zombie.getComponent(HealthIntComponent.class);
+        CollisionHandler survivorZombie = new CollisionHandler(SURVIVOR, WANDERER) {
 
-            if (hp.getValue() > 1) {
-                bullet.removeFromWorld();
-                hp.damage(1);
-                return;
-            }
+            @Override
+            protected void onCollisionBegin(Entity survivor, Entity zombie) {
 
-            spawn("textScore", new SpawnData(zombie.getPosition()).put("text", "+1 kill"));
-            bullet.removeFromWorld();
-            killZombie(zombie);
-
-
-//            Entity e = getGameWorld().create("bloodTrace", new SpawnData(zombie.getPosition()));
-//
-//            spawnWithScale(e, Duration.seconds(0.3), Interpolators.CUBIC.EASE_IN());
-
-            inc("score", +100);
-        });
-
-        onCollisionBegin(SURVIVOR, ZOMBIE, (survivor, zombie) -> {
-
-            killZombie(zombie);
-
-            var hp = survivor.getComponent(HealthIntComponent.class);
-            hp.setValue(hp.getValue() - 1);
-
-            if (hp.isZero()) {
                 killZombie(zombie);
 
-                inc("lives", -1);
+                var hp = survivor.getComponent(HealthIntComponent.class);
+                hp.setValue(hp.getValue() - 1);
 
-                survivor.setPosition(getAppWidth() / 2.0 - 15, getAppHeight() / 2.0 - 15);
-                survivorComponent.playSpawnAnimation();
-                hp.setValue(3);
+                if (hp.isZero()) {
+                    killZombie(zombie);
+
+                    inc("lives", -1);
+
+                    survivor.setPosition(getAppWidth() / 2.0 - 15, getAppHeight() / 2.0 - 15);
+                    survivorComponent.playSpawnAnimation();
+                    hp.setValue(3);
+                }
             }
-        });
+        };
+
+        physics.addCollisionHandler(survivorZombie);
+        physics.addCollisionHandler(survivorZombie.copyFor(SURVIVOR, SPY));
+
+        CollisionHandler bulletZombie = new CollisionHandler(BULLET, WANDERER) {
+            @Override
+            protected void onCollisionBegin(Entity bullet, Entity zombie) {
+                var hp = zombie.getComponent(HealthIntComponent.class);
+
+                if (hp.getValue() > 1) {
+                    bullet.removeFromWorld();
+                    hp.damage(1);
+                    return;
+                }
+
+                spawn("textScore", new SpawnData(zombie.getPosition()).put("text", "+1 kill"));
+                bullet.removeFromWorld();
+
+                killZombie(zombie);
+
+                inc("score", +100);
+            }
+        };
+
+        physics.addCollisionHandler(bulletZombie);
+        physics.addCollisionHandler(bulletZombie.copyFor(BULLET, SPY));
     }
 
     private void killZombie(Entity zombie) {
-        Point2D explosionSpawnPoint = zombie.getCenter().subtract(64, 64);
+        Point2D spawnPosition = zombie.getCenter().subtract(64, 64);
 
-        spawn("explosion", explosionSpawnPoint);
 
-       wandererComponent = zombie.getComponent(WandererComponent.class);
-       wandererComponent.deathAnimation();
-       wandererComponent.playBloodTraceAnimation();
+        if (zombie.isType(SPY)) {
+            SpyComponent spyComponent = zombie.getComponent(SpyComponent.class);
+            spyComponent.playDeathAnimation(spawnPosition);
+            spyComponent.playBloodTraceAnimation(spawnPosition);
+        } else {
+            WandererComponent wandererComponent = zombie.getComponent(WandererComponent.class);
+            wandererComponent.playDeathAnimation();
+            wandererComponent.playBloodTraceAnimation();
+        }
 
         zombie.removeFromWorld();
     }

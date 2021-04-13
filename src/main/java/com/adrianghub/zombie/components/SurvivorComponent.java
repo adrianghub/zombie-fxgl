@@ -2,9 +2,7 @@ package com.adrianghub.zombie.components;
 
 import com.almasb.fxgl.core.math.Vec2;
 import com.almasb.fxgl.dsl.components.ExpireCleanComponent;
-import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.SpawnData;
-import com.almasb.fxgl.entity.Spawns;
 import com.almasb.fxgl.entity.component.Component;
 import com.almasb.fxgl.particle.ParticleComponent;
 import com.almasb.fxgl.particle.ParticleEmitters;
@@ -13,8 +11,8 @@ import javafx.scene.effect.BlendMode;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
-import static com.almasb.fxgl.dsl.FXGL.*;
 import static com.almasb.fxgl.dsl.FXGL.animationBuilder;
+import static com.almasb.fxgl.dsl.FXGL.entityBuilder;
 import static com.almasb.fxgl.dsl.FXGLForKtKt.inc;
 import static com.almasb.fxgl.dsl.FXGLForKtKt.spawn;
 
