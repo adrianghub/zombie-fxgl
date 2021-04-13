@@ -25,6 +25,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Text;
 import javafx.util.Duration;
 
 import java.util.ArrayList;
@@ -59,7 +60,7 @@ public class ZombieMainMenu extends FXGLMenu {
 
         for (int i = 0; i < 15; i++) {
             var block = new ColorBlock(40, color);
-            block.setTranslateX(blockStartX + i*50);
+            block.setTranslateX(blockStartX + i * 50);
             block.setTranslateY(100);
 
             blocks.add(block);
@@ -68,7 +69,7 @@ public class ZombieMainMenu extends FXGLMenu {
 
         for (int i = 0; i < 15; i++) {
             var block = new ColorBlock(40, color);
-            block.setTranslateX(blockStartX + i*50);
+            block.setTranslateX(blockStartX + i * 50);
             block.setTranslateY(220);
 
             blocks.add(block);
@@ -154,19 +155,31 @@ public class ZombieMainMenu extends FXGLMenu {
     }
 
     private void displayHighScores() {
-        animationBuilder(this)
-                .duration(Duration.seconds(0.66))
-                .interpolator(Interpolators.EXPONENTIAL.EASE_OUT())
-                .translate(highScores)
-                .from(new Point2D(getAppWidth(), highScores.getTranslateY()))
-                .to(new Point2D(getAppWidth() - 400, highScores.getTranslateY()))
-                .buildAndPlay();
+
+        HighScoreService highScoreService = getService(HighScoreService.class);
+        GridPane pane = new GridPane();
+
+        pane.setEffect(new DropShadow(5, 3.5, 3.5, Color.DARKRED));
+        pane.setHgap(25);
+        pane.setVgap(10);
+        ArrayList<Text> highScoreList = new ArrayList<>();
+
+        highScoreService.getHighScores().forEach(data -> {
+                var hsText = getUIFactoryService().newText(data.getTag() + ": " + data.getScore(), Color.WHITE, 32.0);
+                highScoreList.add(hsText);
+        });
+
+        for (int i = 0; i < highScoreList.size(); i++) {
+            pane.addRow(i, new HBox(4, highScoreList.get(i)));
+        }
+
+        getDialogService().showBox("High Scores", pane, getUIFactoryService().newButton("OK"));
     }
 
     private void instructions() {
         GridPane pane = new GridPane();
 
-        pane.setEffect(new DropShadow(5, 3.5, 3.5, Color.BLUE));
+        pane.setEffect(new DropShadow(5, 3.5, 3.5, Color.DARKRED));
         pane.setHgap(25);
         pane.setVgap(10);
         pane.addRow(0, getUIFactoryService().newText("Movement"), new HBox(4, new KeyView(W), new KeyView(S), new KeyView(A), new KeyView(D)));
