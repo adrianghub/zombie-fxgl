@@ -1,12 +1,14 @@
 package com.adrianghub.zombie;
 
 import com.adrianghub.zombie.components.SurvivorComponent;
+import com.adrianghub.zombie.components.WandererComponent;
 import com.almasb.fxgl.animation.Interpolators;
 import com.almasb.fxgl.dsl.components.*;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.EntityFactory;
 import com.almasb.fxgl.entity.SpawnData;
 import com.almasb.fxgl.entity.Spawns;
+import com.almasb.fxgl.particle.ParticleComponent;
 import com.almasb.fxgl.ui.FontType;
 import com.almasb.fxgl.ui.ProgressBar;
 import javafx.geometry.Point2D;
@@ -15,6 +17,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 
+import static com.adrianghub.zombie.Config.ENEMY_HP;
+import static com.adrianghub.zombie.Config.SURVIVOR_HP;
 import static com.adrianghub.zombie.ZombieApp.EntityType.*;
 import static com.almasb.fxgl.dsl.FXGL.*;
 
@@ -23,7 +27,7 @@ public class ZombieAppFactory implements EntityFactory {
     @Spawns("survivor")
     public Entity newSurvivor(SpawnData data) {
 
-        var hp = new HealthIntComponent(3);
+        var hp = new HealthIntComponent(SURVIVOR_HP);
 
         var hpView = createHpView(hp, Color.LIMEGREEN, 60, -45, 15 , 90);
 
@@ -40,7 +44,7 @@ public class ZombieAppFactory implements EntityFactory {
     @Spawns("wanderer")
     public Entity newWanderer(SpawnData data) {
 
-        var hp = new HealthIntComponent(1);
+        var hp = new HealthIntComponent(ENEMY_HP);
 
         var hpView = createHpView(hp, Color.VIOLET);
 
@@ -49,6 +53,7 @@ public class ZombieAppFactory implements EntityFactory {
                 .viewWithBBox("zombie-wan.png")
                 .view(hpView)
                 .with(hp)
+                .with(new WandererComponent())
                 .with(new RandomMoveComponent(
                         new Rectangle2D(0, 0,
                                 getAppWidth() + 100, getAppHeight() + 100), 150))
@@ -103,13 +108,6 @@ public class ZombieAppFactory implements EntityFactory {
         return entityBuilder(data)
                 .view(texture("explosion.png").toAnimatedTexture(16, Duration.seconds(0.66)).play())
                 .with(new ExpireCleanComponent(Duration.seconds(0.66)))
-                .build();
-    }
-
-    @Spawns("bloodTrace")
-    public Entity newBloodT(SpawnData data) {
-        return entityBuilder(data)
-                .view("blood-trace.png")
                 .build();
     }
 

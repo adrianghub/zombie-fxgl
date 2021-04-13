@@ -1,6 +1,7 @@
 package com.adrianghub.zombie;
 
 import com.adrianghub.zombie.components.SurvivorComponent;
+import com.adrianghub.zombie.components.WandererComponent;
 import com.adrianghub.zombie.menu.ZombieMainMenu;
 import com.adrianghub.zombie.service.HighScoreService;
 import com.almasb.fxgl.animation.Interpolators;
@@ -32,6 +33,10 @@ import static com.almasb.fxgl.dsl.FXGL.*;
 public class ZombieApp extends GameApplication {
 
     private Entity survivor;
+    private SurvivorComponent survivorComponent;
+
+    private Entity zombie;
+    private WandererComponent wandererComponent;
 
     public enum EntityType {
         SURVIVOR, ZOMBIE, BULLET, LAVA
@@ -93,7 +98,10 @@ public class ZombieApp extends GameApplication {
         spawn("horizontalLava", 0, 0);
         spawn("horizontalLava", 0, getAppHeight() - 10);
 
-        this.survivor = spawn("survivor", getAppWidth() / 2.0 - 15, getAppHeight() / 2.0 - 15);
+        survivor = spawn("survivor", getAppWidth() / 2.0 - 15, getAppHeight() / 2.0 - 15);
+        survivorComponent = survivor.getComponent(SurvivorComponent.class);
+        survivorComponent.playSpawnAnimation();
+
 
         getWorldProperties().<Integer>addListener("score", (prev, now) -> {
             getService(HighScoreService.class).setScore(now);
@@ -147,9 +155,10 @@ public class ZombieApp extends GameApplication {
             bullet.removeFromWorld();
             killZombie(zombie);
 
-            Entity e = getGameWorld().create("bloodTrace", new SpawnData(zombie.getPosition()));
 
-            spawnWithScale(e, Duration.seconds(0.3), Interpolators.CUBIC.EASE_IN());
+//            Entity e = getGameWorld().create("bloodTrace", new SpawnData(zombie.getPosition()));
+//
+//            spawnWithScale(e, Duration.seconds(0.3), Interpolators.CUBIC.EASE_IN());
 
             inc("score", +100);
         });
@@ -167,6 +176,7 @@ public class ZombieApp extends GameApplication {
                 inc("lives", -1);
 
                 survivor.setPosition(getAppWidth() / 2.0 - 15, getAppHeight() / 2.0 - 15);
+                survivorComponent.playSpawnAnimation();
                 hp.setValue(3);
             }
         });
@@ -177,6 +187,10 @@ public class ZombieApp extends GameApplication {
 
         spawn("explosion", explosionSpawnPoint);
 
+       wandererComponent = zombie.getComponent(WandererComponent.class);
+       wandererComponent.deathAnimation();
+       wandererComponent.playBloodTraceAnimation();
+
         zombie.removeFromWorld();
     }
 
@@ -184,7 +198,7 @@ public class ZombieApp extends GameApplication {
     protected void initGameVars(Map<String, Object> vars) {
         vars.put("time", 0.0);
         vars.put("score", 0);
-        vars.put("lives", 1);
+        vars.put("lives", 3);
         vars.put("ammo", 999);
     }
 
@@ -276,6 +290,9 @@ public class ZombieApp extends GameApplication {
             if (hp.isZero()) {
 
                 inc("lives", -1);
+
+                survivorComponent.playSpawnAnimation();
+
 
                 hp.setValue(3);
             }
