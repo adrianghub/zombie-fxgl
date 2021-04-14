@@ -13,7 +13,6 @@ import com.almasb.fxgl.app.GameSettings;
 import com.almasb.fxgl.app.scene.FXGLMenu;
 import com.almasb.fxgl.app.scene.SceneFactory;
 import com.almasb.fxgl.app.scene.SimpleGameMenu;
-import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.dsl.components.HealthIntComponent;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.SpawnData;
@@ -30,12 +29,10 @@ import javafx.util.Duration;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
-import java.util.Random;
 
 import static com.adrianghub.zombie.Config.*;
 import static com.adrianghub.zombie.ZombieApp.EntityType.*;
 import static com.almasb.fxgl.dsl.FXGL.*;
-import static javafx.util.Duration.*;
 import static javafx.util.Duration.seconds;
 
 public class ZombieApp extends GameApplication {
@@ -147,9 +144,7 @@ public class ZombieApp extends GameApplication {
 
         Entity e = getGameWorld().create("wanderer", new SpawnData(random(0, getAppWidth()), random(0, getAppHeight())));
 
-        runOnce(() -> {
-            spawnWithScale(e, seconds(0.3), Interpolator.EASE_OUT);
-        }, seconds(5));
+        runOnce(() -> spawnWithScale(e, seconds(0.3), Interpolator.EASE_OUT), seconds(2 * geti("buff")));
 
     }
 
@@ -163,7 +158,7 @@ public class ZombieApp extends GameApplication {
             spawnFadeIn("spy", new SpawnData(0, 0), seconds(0.3));
 
             spawnFadeIn("spy", new SpawnData(getAppWidth(), getAppHeight()), seconds(0.5));
-        }, seconds(5));
+        }, seconds(2 * geti("buff")));
     }
 
     @Override
@@ -190,12 +185,14 @@ public class ZombieApp extends GameApplication {
             protected void onCollisionBegin(Entity survivor, Entity zombie) {
 
                 killZombie(zombie);
+                spawn("dangerOverlay");
 
                 var hp = survivor.getComponent(HealthIntComponent.class);
                 hp.setValue(hp.getValue() - 1);
 
                 if (hp.isZero()) {
                     killZombie(zombie);
+                    spawn("dangerOverlay");
 
                     inc("lives", -1);
 
@@ -257,6 +254,7 @@ public class ZombieApp extends GameApplication {
         vars.put("ammo", 999);
         vars.put("numWanderers", WANDERERS_AMOUNT);
         vars.put("numSpies", SPIES_AMOUNT);
+        vars.put("buff", 1);
     }
 
     @Override
@@ -288,7 +286,22 @@ public class ZombieApp extends GameApplication {
         centerText(message);
 
         animationBuilder()
-                .duration(seconds(4))
+                .duration(seconds(3))
+                .autoReverse(true)
+                .repeat(2)
+                .fadeIn(message)
+                .buildAndPlay();
+    }
+
+    public void setCenteredText(Text message, Duration delay) {
+        addUINode(message);
+
+        centerText(message);
+
+        animationBuilder()
+                .delay(delay)
+                .interpolator(Interpolators.CUBIC.EASE_OUT())
+                .duration(seconds(1))
                 .autoReverse(true)
                 .repeat(2)
                 .fadeIn(message)
@@ -346,11 +359,14 @@ public class ZombieApp extends GameApplication {
 
             var hp = survivor.getComponent(HealthIntComponent.class);
             hp.setValue(hp.getValue() - 1);
+            spawn("dangerOverlay");
+
             survivor.setPosition(getAppWidth() / 2.0 - 15, getAppHeight() / 2.0 - 15);
 
             if (hp.isZero()) {
 
                 inc("lives", -1);
+                spawn("dangerOverlay");
 
                 survivorComponent.playSpawnAnimation();
 
@@ -360,11 +376,16 @@ public class ZombieApp extends GameApplication {
 
         if (geti("numWanderers") < 1 && geti("numSpies") < 1) {
             Text levelMessage = getUIFactoryService().newText("Hordes of zombies coming up...", Color.DARKRED, 38);
+            Text bonusMessage = getUIFactoryService().newText("+ BONUS SCORE", Color.GOLD, 52);
 
             setCenteredText(levelMessage);
+            setCenteredText(bonusMessage, seconds(4));
 
-            inc("numWanderers", +5);
-            inc("numSpies", +5);
+            inc("buff", +1);
+            inc("score", random(1, 500));
+
+            inc("numWanderers", +2 * geti("buff"));
+            inc("numSpies", +2 * geti("buff"));
         }
     }
 

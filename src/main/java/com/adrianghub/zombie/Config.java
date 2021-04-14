@@ -9,7 +9,7 @@ public class Config {
 
     public static final String SAVE_FILE_NAME = "hall_of_fame.txt";
 
-    public static final Integer DEMO_SCORE = 10_000;
+    public static final Integer DEMO_SCORE = 20_000;
 
     public static final int LIVES_AMOUNT = 3;
 
