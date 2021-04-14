@@ -3,6 +3,8 @@ package com.adrianghub.zombie;
 import com.adrianghub.zombie.components.SpyComponent;
 import com.adrianghub.zombie.components.SurvivorComponent;
 import com.adrianghub.zombie.components.WandererComponent;
+import com.adrianghub.zombie.factories.AnotherFactory;
+import com.adrianghub.zombie.factories.ZombieAppFactory;
 import com.adrianghub.zombie.menu.ZombieMainMenu;
 import com.adrianghub.zombie.service.HighScoreService;
 import com.almasb.fxgl.animation.Interpolators;
@@ -11,13 +13,14 @@ import com.almasb.fxgl.app.GameSettings;
 import com.almasb.fxgl.app.scene.FXGLMenu;
 import com.almasb.fxgl.app.scene.SceneFactory;
 import com.almasb.fxgl.app.scene.SimpleGameMenu;
-import com.almasb.fxgl.core.math.FXGLMath;
 import com.almasb.fxgl.dsl.components.HealthIntComponent;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.SpawnData;
 import com.almasb.fxgl.physics.CollisionHandler;
 import com.almasb.fxgl.physics.PhysicsWorld;
 import javafx.animation.Interpolator;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Point2D;
 import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
@@ -31,6 +34,7 @@ import java.util.Random;
 import static com.adrianghub.zombie.Config.*;
 import static com.adrianghub.zombie.ZombieApp.EntityType.*;
 import static com.almasb.fxgl.dsl.FXGL.*;
+import static javafx.util.Duration.seconds;
 
 public class ZombieApp extends GameApplication {
 
@@ -51,7 +55,7 @@ public class ZombieApp extends GameApplication {
     };
 
     private static String getRandomDeathMessage() {
-        return deathMessage[FXGLMath.random(0, 3)];
+        return deathMessage[random(0, 3)];
     }
 
     public Entity getSurvivor() {
@@ -63,8 +67,8 @@ public class ZombieApp extends GameApplication {
         settings.setTitle("Survivor");
         settings.setVersion("0.1");
         settings.setFontUI("zombie.ttf");
-        settings.setWidth(1024);
-        settings.setHeight(720);
+        settings.setWidth(1440);
+        settings.setHeight(1024);
         settings.addEngineService(HighScoreService.class);
         settings.setMainMenuEnabled(true);
         settings.setSceneFactory(new SceneFactory() {
@@ -92,6 +96,7 @@ public class ZombieApp extends GameApplication {
     protected void initGame() {
 
         getGameWorld().addEntityFactory(new ZombieAppFactory());
+        getGameWorld().addEntityFactory(new AnotherFactory());
 
         getGameScene().setBackgroundColor(Color.color(0, 0, 0.05, 0.5));
 
@@ -119,22 +124,30 @@ public class ZombieApp extends GameApplication {
         });
 
         if (!IS_NO_ZOMBIES) {
-            spawnZombies();
+            spawnSpy();
         }
+
+        BooleanProperty wanderersLeft = new SimpleBooleanProperty();
+        wanderersLeft.bind(getip("numWanderers").greaterThan(0));
+
+        getGameTimer().runAtIntervalWhile(this::spawnWanderer, WANDERER_SPAWN_INTERVAL, wanderersLeft);
 
     }
 
-    private void spawnZombies() {
+    private void spawnWanderer() {
+
         Random random = new Random();
 
-        run(() -> {
+        Entity e = getGameWorld().create("wanderer", new SpawnData(random.nextInt(getAppWidth()), random.nextInt(getAppHeight())));
 
-            Entity e = getGameWorld().create("wanderer", new SpawnData(random.nextInt(getAppWidth()), random.nextInt(getAppHeight())));
+        spawnWithScale(e, seconds(0.3), Interpolator.EASE_OUT);
+    }
 
-            spawnWithScale(e, Duration.seconds(0.3), Interpolator.EASE_OUT);
-        }, WANDERER_SPAWN_INTERVAL);
+    private void spawnSpy() {
 
-        run(() -> spawnFadeIn("spy",new SpawnData(0, 0), Duration.seconds(0.3)), SPY_SPAWN_INTERVAL);
+        run(() -> spawnFadeIn("spy", new SpawnData(0, 0), seconds(0.3)), SPY_SPAWN_INTERVAL);
+
+        run(() -> spawnFadeIn("spy", new SpawnData(getAppWidth(), getAppHeight()), seconds(0.5)), SPY_SPAWN_INTERVAL_PLUS);
     }
 
     @Override
@@ -148,7 +161,7 @@ public class ZombieApp extends GameApplication {
         onKey(KeyCode.DOWN, () -> survivor.getComponent(SurvivorComponent.class).moveBackward());
         onKey(KeyCode.LEFT, () -> survivor.getComponent(SurvivorComponent.class).turnLeft());
         onKey(KeyCode.RIGHT, () -> survivor.getComponent(SurvivorComponent.class).turnRight());
-        onKeyDown(KeyCode.SPACE,"Single shot", () -> survivor.getComponent(SurvivorComponent.class).shoot());
+        onKeyDown(KeyCode.SPACE, "Single shot", () -> survivor.getComponent(SurvivorComponent.class).shoot());
     }
 
     @Override
@@ -207,7 +220,6 @@ public class ZombieApp extends GameApplication {
     private void killZombie(Entity zombie) {
         Point2D spawnPosition = zombie.getCenter().subtract(64, 64);
 
-
         if (zombie.isType(SPY)) {
             SpyComponent spyComponent = zombie.getComponent(SpyComponent.class);
             spyComponent.playDeathAnimation(spawnPosition);
@@ -227,6 +239,7 @@ public class ZombieApp extends GameApplication {
         vars.put("score", 0);
         vars.put("lives", 3);
         vars.put("ammo", 999);
+        vars.put("numWanderers", 5);
     }
 
     @Override
@@ -254,19 +267,19 @@ public class ZombieApp extends GameApplication {
         centerText(introMessage);
 
         animationBuilder()
-                .duration(Duration.seconds(2))
+                .duration(seconds(2))
                 .autoReverse(true)
                 .repeat(2)
                 .fadeIn(introMessage)
                 .buildAndPlay();
     }
 
-    public Text setUIScoreText (int xPosition) {
+    public Text setUIScoreText(int xPosition) {
         Text textUI = getUIFactoryService().newText("", Color.WHITE, 32);
         textUI.setStroke(Color.GOLD);
 
         getWorldProperties().addListener("score", (prev, now) -> animationBuilder()
-                .duration(Duration.seconds(0.5))
+                .duration(seconds(0.5))
                 .interpolator(Interpolators.BOUNCE.EASE_IN())
                 .repeat(2)
                 .autoReverse(true)
@@ -280,7 +293,7 @@ public class ZombieApp extends GameApplication {
         return textUI;
     }
 
-    public Text setUIText (int xPosition) {
+    public Text setUIText(int xPosition) {
         Text textUI = getUIFactoryService().newText("", Color.WHITE, 32);
         textUI.setStroke(Color.GOLD);
 
@@ -289,7 +302,7 @@ public class ZombieApp extends GameApplication {
         return textUI;
     }
 
-    public Text setUIText (int xPosition, int yPosition) {
+    public Text setUIText(int xPosition, int yPosition) {
         Text textUI = getUIFactoryService().newText("", Color.WHITE, 32);
         textUI.setTranslateX(xPosition);
         textUI.setTranslateY(yPosition);
@@ -307,7 +320,7 @@ public class ZombieApp extends GameApplication {
 
         if (survivor.getRightX() > getAppWidth() ||
                 survivor.getBottomY() > getAppHeight() ||
-            survivor.getX() <= 0 || survivor.getY() <= 0
+                survivor.getX() <= 0 || survivor.getY() <= 0
         ) {
 
             var hp = survivor.getComponent(HealthIntComponent.class);
@@ -320,14 +333,13 @@ public class ZombieApp extends GameApplication {
 
                 survivorComponent.playSpawnAnimation();
 
-
                 hp.setValue(3);
             }
         }
     }
 
     public String statsMessage() {
-        Duration userTime = Duration.seconds(getd("time"));
+        Duration userTime = seconds(getd("time"));
 
         return "\n\nPoints: " + geti("score") +
                 String.format("\nTime: %.2f sec!", userTime.toSeconds()) +

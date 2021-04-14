@@ -36,7 +36,7 @@ public class SpyComponent extends Component {
     };
 
     private static String getRandomBloodTrace() {
-        return bloodTrace[FXGLMath.random(0, 3)];
+        return bloodTrace[random(0, 3)];
     }
 
     @Override

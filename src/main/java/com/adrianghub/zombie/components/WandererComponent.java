@@ -10,8 +10,7 @@ import javafx.scene.effect.BlendMode;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
-import static com.almasb.fxgl.dsl.FXGL.animationBuilder;
-import static com.almasb.fxgl.dsl.FXGL.entityBuilder;
+import static com.almasb.fxgl.dsl.FXGL.*;
 
 public class WandererComponent extends Component {
 
@@ -26,27 +25,23 @@ public class WandererComponent extends Component {
     };
 
     private static String getRandomBloodTrace() {
-        return bloodTrace[FXGLMath.random(0, 3)];
+        return bloodTrace[random(0, 3)];
     }
 
     public void playDeathAnimation() {
-        var emitter = ParticleEmitters.newExplosionEmitter(45);
-        emitter.setSize(1, 8);
+        var emitter = ParticleEmitters.newExplosionEmitter(random(25, 75));
+        emitter.setSize(1, random(8, 16));
         emitter.setBlendMode(BlendMode.DARKEN);
         emitter.setStartColor(Color.color(1.0, 0.2, 0.2, 0.5));
         emitter.setEndColor(Color.DARKRED);
-        emitter.setMaxEmissions(10);
-        emitter.setEmissionRate(1.0);
+        emitter.setMaxEmissions(random(1, 3));
+        emitter.setEmissionRate(0.5);
 
         entityBuilder()
                 .at(entity.getPosition())
                 .with(new ParticleComponent(emitter))
-                .with(new ExpireCleanComponent(Duration.seconds(2)))
+                .with(new ExpireCleanComponent(Duration.seconds(0.66)))
                 .buildAndAttach();
-
-        animationBuilder()
-                .fadeIn(entity)
-                .buildAndPlay();
     }
 
     public void playBloodTraceAnimation() {

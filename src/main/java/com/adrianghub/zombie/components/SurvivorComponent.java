@@ -19,11 +19,11 @@ import static com.almasb.fxgl.dsl.FXGLForKtKt.spawn;
 public class SurvivorComponent extends Component {
 
     public void turnLeft() {
-        entity.rotateBy(-5);
+        entity.rotateBy(-3);
     }
 
     public void turnRight() {
-        entity.rotateBy(5);
+        entity.rotateBy(3);
     }
 
     public void moveForward() {

@@ -12,11 +12,13 @@ public class Config {
     public static final Integer DEMO_SCORE = 10_000;
 
     public static final Integer SURVIVOR_HP = 3;
-    public static final Integer ZOMBIE_HP = 1;
+    public static final Integer WANDERER_HP = 2;
+    public static final Integer SPY_HP = 1;
 
     public static final Integer SPY_SPEED = 100;
     public static final Integer WANDERER_SPEED = 150;
 
-    public static final Duration WANDERER_SPAWN_INTERVAL = seconds(2);
-    public static final Duration SPY_SPAWN_INTERVAL = seconds(2.5);
+    public static Duration WANDERER_SPAWN_INTERVAL = seconds(3);
+    public static final Duration SPY_SPAWN_INTERVAL = seconds(5);
+    public static final Duration SPY_SPAWN_INTERVAL_PLUS = seconds(10);
 }

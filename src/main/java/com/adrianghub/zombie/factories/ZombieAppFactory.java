@@ -1,5 +1,6 @@
-package com.adrianghub.zombie;
+package com.adrianghub.zombie.factories;
 
+import com.adrianghub.zombie.ZombieApp;
 import com.adrianghub.zombie.components.SpyComponent;
 import com.adrianghub.zombie.components.SurvivorComponent;
 import com.adrianghub.zombie.components.WandererComponent;
@@ -10,14 +11,11 @@ import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.EntityFactory;
 import com.almasb.fxgl.entity.SpawnData;
 import com.almasb.fxgl.entity.Spawns;
-import com.almasb.fxgl.entity.components.CollidableComponent;
-import com.almasb.fxgl.particle.ParticleComponent;
 import com.almasb.fxgl.ui.FontType;
 import com.almasb.fxgl.ui.ProgressBar;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 
@@ -47,7 +45,7 @@ public class ZombieAppFactory implements EntityFactory {
     @Spawns("wanderer")
     public Entity newWanderer(SpawnData data) {
 
-        var hp = new HealthIntComponent(ZOMBIE_HP);
+        var hp = new HealthIntComponent(WANDERER_HP);
 
         var hpView = createHpView(hp, Color.VIOLET);
 
@@ -59,19 +57,18 @@ public class ZombieAppFactory implements EntityFactory {
                 .with(new WandererComponent(WANDERER_SPEED))
                 .with(new RandomMoveComponent(
                         new Rectangle2D(0, 0,
-                                getAppWidth() + 100, getAppHeight() + 100), 150))
+                                getAppWidth() + 10, getAppHeight() + 10), 150))
                 .collidable()
                 .build();
     }
 
     @Spawns("spy")
     public Entity newSpy(SpawnData data) {
-        var hp = new HealthIntComponent(ZOMBIE_HP);
+        var hp = new HealthIntComponent(SPY_HP);
 
         var hpView = createHpView(hp, Color.DIMGREY);
 
         return entityBuilder(data)
-                .at(0, 0)
                 .type(SPY)
                 .viewWithBBox("zombie-spy.png")
                 .view(hpView)
