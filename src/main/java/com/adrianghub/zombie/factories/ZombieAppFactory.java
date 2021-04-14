@@ -22,6 +22,7 @@ import javafx.util.Duration;
 import static com.adrianghub.zombie.Config.*;
 import static com.adrianghub.zombie.ZombieApp.EntityType.*;
 import static com.almasb.fxgl.dsl.FXGL.*;
+import static javafx.util.Duration.seconds;
 
 public class ZombieAppFactory implements EntityFactory {
 
@@ -138,17 +139,32 @@ public class ZombieAppFactory implements EntityFactory {
                 .build();
     }
 
+    @Spawns("dangerOverlay")
+    public Entity newDOverlay(SpawnData data) {
+        var e = entityBuilder(data)
+                .view(new Rectangle(getAppWidth(), getAppHeight(), Color.color(0.375, 0, 0, 0.5)))
+                .with(new ExpireCleanComponent(seconds(0.5)).animateOpacity())
+                .build();
+
+        animationBuilder()
+                .duration(seconds(0.5))
+                .fadeOut(e)
+                .buildAndPlay();
+
+        return e;
+    }
+
     @Spawns("textScore")
     public Entity newTextS(SpawnData data) {
         String text = data.get("text");
 
         var e = entityBuilder(data)
                 .view(getUIFactoryService().newText(text, Color.GOLD, FontType.TEXT, 24))
-                .with(new ExpireCleanComponent(Duration.seconds(1)).animateOpacity())
+                .with(new ExpireCleanComponent(seconds(1)).animateOpacity())
                 .build();
 
         animationBuilder()
-                .duration(Duration.seconds(1))
+                .duration(seconds(1))
                 .interpolator(Interpolators.CUBIC.EASE_OUT())
                 .translate(e)
                 .from(new Point2D(data.getX(), data.getY()))
