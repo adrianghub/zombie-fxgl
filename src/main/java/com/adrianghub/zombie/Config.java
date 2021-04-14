@@ -5,7 +5,7 @@ import javafx.util.Duration;
 import static javafx.util.Duration.seconds;
 
 public class Config {
-    public static final boolean IS_NO_ZOMBIES = false;
+    public static boolean IS_NO_ZOMBIES = false;
 
     public static final String SAVE_FILE_NAME = "hall_of_fame.txt";
 
@@ -23,6 +23,6 @@ public class Config {
     public static Duration WANDERER_SPAWN_INTERVAL = seconds(3);
     public static final Duration SPY_SPAWN_INTERVAL = seconds(5);
 
-    public static final int WANDERERS_AMOUNT = 10;
-    public static final int SPIES_AMOUNT = 20;
+    public static int WANDERERS_AMOUNT = 5;
+    public static int SPIES_AMOUNT = 5;
 }

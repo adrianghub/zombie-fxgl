@@ -13,6 +13,7 @@ import com.almasb.fxgl.app.GameSettings;
 import com.almasb.fxgl.app.scene.FXGLMenu;
 import com.almasb.fxgl.app.scene.SceneFactory;
 import com.almasb.fxgl.app.scene.SimpleGameMenu;
+import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.dsl.components.HealthIntComponent;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.SpawnData;
@@ -34,6 +35,7 @@ import java.util.Random;
 import static com.adrianghub.zombie.Config.*;
 import static com.adrianghub.zombie.ZombieApp.EntityType.*;
 import static com.almasb.fxgl.dsl.FXGL.*;
+import static javafx.util.Duration.*;
 import static javafx.util.Duration.seconds;
 
 public class ZombieApp extends GameApplication {
@@ -143,11 +145,12 @@ public class ZombieApp extends GameApplication {
 
         inc("numWanderers", -1);
 
-        Random random = new Random();
+        Entity e = getGameWorld().create("wanderer", new SpawnData(random(0, getAppWidth()), random(0, getAppHeight())));
 
-        Entity e = getGameWorld().create("wanderer", new SpawnData(random.nextInt(getAppWidth()), random.nextInt(getAppHeight())));
+        runOnce(() -> {
+            spawnWithScale(e, seconds(0.3), Interpolator.EASE_OUT);
+        }, seconds(5));
 
-        spawnWithScale(e, seconds(0.3), Interpolator.EASE_OUT);
     }
 
     private void spawnSpy() {
@@ -156,9 +159,11 @@ public class ZombieApp extends GameApplication {
 
         inc("numSpies", -1);
 
-        spawnFadeIn("spy", new SpawnData(0, 0), seconds(0.3));
+        runOnce(() -> {
+            spawnFadeIn("spy", new SpawnData(0, 0), seconds(0.3));
 
-        spawnFadeIn("spy", new SpawnData(getAppWidth(), getAppHeight()), seconds(0.5));
+            spawnFadeIn("spy", new SpawnData(getAppWidth(), getAppHeight()), seconds(0.5));
+        }, seconds(5));
     }
 
     @Override
@@ -274,15 +279,19 @@ public class ZombieApp extends GameApplication {
 
         Text introMessage = getUIFactoryService().newText("Alone against hordes of zombies...", Color.DARKRED, 38);
 
-        addUINode(introMessage);
+        setCenteredText(introMessage);
+    }
 
-        centerText(introMessage);
+    public void setCenteredText(Text message) {
+        addUINode(message);
+
+        centerText(message);
 
         animationBuilder()
-                .duration(seconds(2))
+                .duration(seconds(4))
                 .autoReverse(true)
                 .repeat(2)
-                .fadeIn(introMessage)
+                .fadeIn(message)
                 .buildAndPlay();
     }
 
@@ -347,6 +356,15 @@ public class ZombieApp extends GameApplication {
 
                 hp.setValue(3);
             }
+        }
+
+        if (geti("numWanderers") < 1 && geti("numSpies") < 1) {
+            Text levelMessage = getUIFactoryService().newText("Hordes of zombies coming up...", Color.DARKRED, 38);
+
+            setCenteredText(levelMessage);
+
+            inc("numWanderers", +5);
+            inc("numSpies", +5);
         }
     }
 
