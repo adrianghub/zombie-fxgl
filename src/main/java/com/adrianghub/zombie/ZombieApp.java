@@ -68,7 +68,7 @@ public class ZombieApp extends GameApplication {
         settings.setVersion("0.1");
         settings.setFontUI("zombie.ttf");
         settings.setWidth(1440);
-        settings.setHeight(1024);
+        settings.setHeight(900);
         settings.addEngineService(HighScoreService.class);
         settings.setMainMenuEnabled(true);
         settings.setSceneFactory(new SceneFactory() {
@@ -124,17 +124,24 @@ public class ZombieApp extends GameApplication {
         });
 
         if (!IS_NO_ZOMBIES) {
-            spawnSpy();
+            BooleanProperty wanderersLeft = new SimpleBooleanProperty();
+            wanderersLeft.bind(getip("numWanderers").greaterThan(0));
+
+            getGameTimer().runAtIntervalWhile(this::spawnWanderer, WANDERER_SPAWN_INTERVAL, wanderersLeft);
+
+            BooleanProperty spiesLeft = new SimpleBooleanProperty();
+            spiesLeft.bind(getip("numSpies").greaterThan(0));
+
+            getGameTimer().runAtIntervalWhile(this::spawnSpy, SPY_SPAWN_INTERVAL, spiesLeft);
+
         }
-
-        BooleanProperty wanderersLeft = new SimpleBooleanProperty();
-        wanderersLeft.bind(getip("numWanderers").greaterThan(0));
-
-        getGameTimer().runAtIntervalWhile(this::spawnWanderer, WANDERER_SPAWN_INTERVAL, wanderersLeft);
-
     }
 
     private void spawnWanderer() {
+
+        if (geti("numWanderers") < 1) return;
+
+        inc("numWanderers", -1);
 
         Random random = new Random();
 
@@ -145,9 +152,13 @@ public class ZombieApp extends GameApplication {
 
     private void spawnSpy() {
 
-        run(() -> spawnFadeIn("spy", new SpawnData(0, 0), seconds(0.3)), SPY_SPAWN_INTERVAL);
+        if (geti("numSpies") < 1) return;
 
-        run(() -> spawnFadeIn("spy", new SpawnData(getAppWidth(), getAppHeight()), seconds(0.5)), SPY_SPAWN_INTERVAL_PLUS);
+        inc("numSpies", -1);
+
+        spawnFadeIn("spy", new SpawnData(0, 0), seconds(0.3));
+
+        spawnFadeIn("spy", new SpawnData(getAppWidth(), getAppHeight()), seconds(0.5));
     }
 
     @Override
@@ -237,9 +248,10 @@ public class ZombieApp extends GameApplication {
     protected void initGameVars(Map<String, Object> vars) {
         vars.put("time", 0.0);
         vars.put("score", 0);
-        vars.put("lives", 3);
+        vars.put("lives", LIVES_AMOUNT);
         vars.put("ammo", 999);
-        vars.put("numWanderers", 5);
+        vars.put("numWanderers", WANDERERS_AMOUNT);
+        vars.put("numSpies", SPIES_AMOUNT);
     }
 
     @Override

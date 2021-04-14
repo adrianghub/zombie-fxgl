@@ -11,6 +11,8 @@ public class Config {
 
     public static final Integer DEMO_SCORE = 10_000;
 
+    public static final int LIVES_AMOUNT = 3;
+
     public static final Integer SURVIVOR_HP = 3;
     public static final Integer WANDERER_HP = 2;
     public static final Integer SPY_HP = 1;
@@ -20,5 +22,7 @@ public class Config {
 
     public static Duration WANDERER_SPAWN_INTERVAL = seconds(3);
     public static final Duration SPY_SPAWN_INTERVAL = seconds(5);
-    public static final Duration SPY_SPAWN_INTERVAL_PLUS = seconds(10);
+
+    public static final int WANDERERS_AMOUNT = 10;
+    public static final int SPIES_AMOUNT = 20;
 }
