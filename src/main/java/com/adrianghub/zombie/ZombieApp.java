@@ -7,7 +7,6 @@ import com.adrianghub.zombie.factories.AnotherFactory;
 import com.adrianghub.zombie.factories.ZombieAppFactory;
 import com.adrianghub.zombie.menu.ZombieMainMenu;
 import com.adrianghub.zombie.service.HighScoreService;
-import com.almasb.fxgl.animation.Interpolators;
 import com.almasb.fxgl.app.GameApplication;
 import com.almasb.fxgl.app.GameSettings;
 import com.almasb.fxgl.app.scene.FXGLMenu;
@@ -25,13 +24,13 @@ import javafx.geometry.Point2D;
 import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
-import javafx.util.Duration;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
 import static com.adrianghub.zombie.Config.*;
 import static com.adrianghub.zombie.ZombieApp.EntityType.*;
+import static com.adrianghub.zombie.ui.UIText.*;
 import static com.almasb.fxgl.dsl.FXGL.*;
 import static javafx.util.Duration.seconds;
 
@@ -42,19 +41,6 @@ public class ZombieApp extends GameApplication {
 
     public enum EntityType {
         SURVIVOR, BULLET, LAVA, WANDERER, SPY
-    }
-
-    private static final String demoEndMessage = "You have finally finished the demo. Thank you!";
-
-    private static final String[] deathMessage = {
-            "Sooo close...",
-            "Ah, shit...Here we go again",
-            "You're a dead meat",
-            "Come back later :)",
-    };
-
-    private static String getRandomDeathMessage() {
-        return deathMessage[random(0, 3)];
     }
 
     public Entity getSurvivor() {
@@ -231,16 +217,17 @@ public class ZombieApp extends GameApplication {
     }
 
     private void killZombie(Entity zombie) {
-        Point2D spawnPosition = zombie.getCenter().subtract(64, 64);
+        Point2D spawnSubstractedZombiePosition = zombie.getCenter().subtract(64, 64);
+        Point2D spawnZombiePosition = zombie.getPosition();
 
         if (zombie.isType(SPY)) {
             SpyComponent spyComponent = zombie.getComponent(SpyComponent.class);
-            spyComponent.playDeathAnimation(spawnPosition);
-            spyComponent.playBloodTraceAnimation(spawnPosition);
+            spyComponent.playDeathAnimation(spawnSubstractedZombiePosition);
+            spyComponent.playBloodTraceAnimation(spawnZombiePosition);
         } else {
             WandererComponent wandererComponent = zombie.getComponent(WandererComponent.class);
-            wandererComponent.playDeathAnimation();
-            wandererComponent.playBloodTraceAnimation();
+            wandererComponent.playDeathAnimation(spawnZombiePosition);
+            wandererComponent.playBloodTraceAnimation(spawnZombiePosition);
         }
 
         zombie.removeFromWorld();
@@ -278,73 +265,6 @@ public class ZombieApp extends GameApplication {
         Text introMessage = getUIFactoryService().newText("Alone against hordes of zombies...", Color.DARKRED, 38);
 
         setCenteredText(introMessage);
-    }
-
-    public void setCenteredText(Text message) {
-        addUINode(message);
-
-        centerText(message);
-
-        animationBuilder()
-                .duration(seconds(3))
-                .autoReverse(true)
-                .repeat(2)
-                .fadeIn(message)
-                .buildAndPlay();
-    }
-
-    public void setCenteredText(Text message, Duration delay) {
-        addUINode(message);
-
-        centerText(message);
-
-        animationBuilder()
-                .delay(delay)
-                .interpolator(Interpolators.CUBIC.EASE_OUT())
-                .duration(seconds(1))
-                .autoReverse(true)
-                .repeat(2)
-                .fadeIn(message)
-                .buildAndPlay();
-    }
-
-    public Text setUIScoreText(int xPosition) {
-        Text textUI = getUIFactoryService().newText("", Color.WHITE, 32);
-        textUI.setStroke(Color.GOLD);
-
-        getWorldProperties().addListener("score", (prev, now) -> animationBuilder()
-                .duration(seconds(0.5))
-                .interpolator(Interpolators.BOUNCE.EASE_IN())
-                .repeat(2)
-                .autoReverse(true)
-                .scale(textUI)
-                .from(new Point2D(1, 1))
-                .to(new Point2D(1.2, 1.2))
-                .buildAndPlay());
-
-        addUINode(textUI, xPosition, 50);
-
-        return textUI;
-    }
-
-    public Text setUIText(int xPosition) {
-        Text textUI = getUIFactoryService().newText("", Color.WHITE, 32);
-        textUI.setStroke(Color.GOLD);
-
-        addUINode(textUI, xPosition, 50);
-
-        return textUI;
-    }
-
-    public Text setUIText(int xPosition, int yPosition) {
-        Text textUI = getUIFactoryService().newText("", Color.WHITE, 32);
-        textUI.setTranslateX(xPosition);
-        textUI.setTranslateY(yPosition);
-        textUI.setStroke(Color.GOLD);
-
-        addUINode(textUI, xPosition, yPosition);
-
-        return textUI;
     }
 
     @Override
@@ -389,23 +309,8 @@ public class ZombieApp extends GameApplication {
         }
     }
 
-    public String statsMessage() {
-        Duration userTime = seconds(getd("time"));
-
-        return "\n\nPoints: " + geti("score") +
-                String.format("\nTime: %.2f sec!", userTime.toSeconds()) +
-                "\n\nEnter your name";
-    }
-
     public void gameOver() {
-        getDialogService().showInputBox(geti("score") >= DEMO_SCORE ? demoEndMessage + statsMessage() : getRandomDeathMessage() +
-                statsMessage(), s -> s.matches("[a-zA-Z]*"), name -> {
-            getService(HighScoreService.class).commit(name);
-
-            getSaveLoadService().saveAndWriteTask(SAVE_FILE_NAME).run();
-
-            getGameController().gotoMainMenu();
-        });
+        displayEndGameInfoBox();
     }
 
     public static void main(String[] args) {
