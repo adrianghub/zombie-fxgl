@@ -3,8 +3,10 @@ package com.adrianghub.zombie;
 import com.adrianghub.zombie.components.SpyComponent;
 import com.adrianghub.zombie.components.SurvivorComponent;
 import com.adrianghub.zombie.components.WandererComponent;
-import com.adrianghub.zombie.factories.AnotherFactory;
-import com.adrianghub.zombie.factories.ZombieAppFactory;
+import com.adrianghub.zombie.factories.UIPartsFactory;
+import com.adrianghub.zombie.factories.ViewsFactory;
+import com.adrianghub.zombie.factories.CharactersFactory;
+import com.adrianghub.zombie.factories.WeaponsFactory;
 import com.adrianghub.zombie.menu.ZombieMainMenu;
 import com.adrianghub.zombie.service.HighScoreService;
 import com.almasb.fxgl.app.GameApplication;
@@ -80,8 +82,10 @@ public class ZombieApp extends GameApplication {
     @Override
     protected void initGame() {
 
-        getGameWorld().addEntityFactory(new ZombieAppFactory());
-        getGameWorld().addEntityFactory(new AnotherFactory());
+        getGameWorld().addEntityFactory(new CharactersFactory());
+        getGameWorld().addEntityFactory(new ViewsFactory());
+        getGameWorld().addEntityFactory(new UIPartsFactory());
+        getGameWorld().addEntityFactory(new WeaponsFactory());
 
         getGameScene().setBackgroundColor(Color.color(0, 0, 0.05, 0.5));
 
