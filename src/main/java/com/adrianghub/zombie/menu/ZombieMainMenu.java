@@ -161,11 +161,13 @@ public class ZombieMainMenu extends FXGLMenu {
 
         pane.setEffect(new DropShadow(5, 3.5, 3.5, Color.DARKRED));
         pane.setHgap(25);
-        pane.setVgap(10);
+        pane.setVgap(25);
+        pane.setAlignment(Pos.CENTER);
         ArrayList<Text> highScoreList = new ArrayList<>();
 
         highScoreService.getHighScores().forEach(data -> {
-                var hsText = getUIFactoryService().newText(data.getTag() + ": " + data.getScore(), Color.WHITE, 32.0);
+                var hsText = getUIFactoryService().newText(data.getTag() + ": " + data.getScore() + String.format(" in %.2f sec!", data.getTime()), Color.WHITE, 32.0);
+
                 highScoreList.add(hsText);
         });
 
