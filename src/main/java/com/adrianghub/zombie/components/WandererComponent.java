@@ -28,7 +28,7 @@ public class WandererComponent extends Component {
         return bloodTrace[random(0, 3)];
     }
 
-    public void playDeathAnimation() {
+    public void playDeathAnimation(Point2D spawnPoint) {
         var emitter = ParticleEmitters.newExplosionEmitter(random(25, 75));
         emitter.setSize(1, random(8, 16));
         emitter.setBlendMode(BlendMode.DARKEN);
@@ -38,15 +38,15 @@ public class WandererComponent extends Component {
         emitter.setEmissionRate(0.5);
 
         entityBuilder()
-                .at(entity.getPosition())
+                .at(spawnPoint)
                 .with(new ParticleComponent(emitter))
                 .with(new ExpireCleanComponent(Duration.seconds(0.66)))
                 .buildAndAttach();
     }
 
-    public void playBloodTraceAnimation() {
+    public void playBloodTraceAnimation(Point2D spawnPoint) {
         entityBuilder()
-                .at(entity.getPosition())
+                .at(spawnPoint)
                 .view(getRandomBloodTrace())
                 .with(new ExpireCleanComponent(Duration.seconds(5)).animateOpacity())
                 .buildAndAttach();
