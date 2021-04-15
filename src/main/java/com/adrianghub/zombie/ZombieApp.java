@@ -107,6 +107,8 @@ public class ZombieApp extends GameApplication {
                 gameOver();
         });
 
+        getWorldProperties().<Double>addListener("time", (prev, now) -> getService(HighScoreService.class).setTime(now));
+
         getWorldProperties().<Integer>addListener("lives", (prev, now) -> {
             if (now == 0)
                 gameOver();

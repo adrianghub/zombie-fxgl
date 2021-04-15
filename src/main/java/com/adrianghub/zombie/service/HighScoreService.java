@@ -2,7 +2,9 @@ package com.adrianghub.zombie.service;
 
 import com.almasb.fxgl.core.EngineService;
 import com.almasb.fxgl.core.serialization.Bundle;
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 
 import java.io.Serializable;
@@ -14,6 +16,7 @@ import java.util.stream.Collectors;
 public final class HighScoreService extends EngineService {
 
     private IntegerProperty score = new SimpleIntegerProperty();
+    private DoubleProperty time = new SimpleDoubleProperty();
     private int numScoresToKeep = 5;
 
     private ArrayList<HighScoreData> highScores = new ArrayList<>();
@@ -21,13 +24,22 @@ public final class HighScoreService extends EngineService {
     public IntegerProperty scoreProperty() {
         return score;
     }
+    public DoubleProperty timeProperty() { return time; }
 
     public int getScore() {
         return score.get();
     }
 
+    public double getTimePlayed() {
+        return time.get();
+    }
+
     public void setScore(int score) {
         this.score.set(score);
+    }
+
+    public void setTime(double time) {
+        this.time.set(time);
     }
 
     public void incrementScore(int value) {
@@ -38,10 +50,12 @@ public final class HighScoreService extends EngineService {
      * Remember current score with given tag and reset score to 0.
      */
     public void commit(String tag) {
-        highScores.add(new HighScoreData(tag, getScore()));
+        highScores.add(new HighScoreData(tag, getScore(), getTimePlayed()));
 
         score.unbind();
+        time.unbind();
         setScore(0);
+        setTime(0);
 
         updateScores();
     }
@@ -70,6 +84,7 @@ public final class HighScoreService extends EngineService {
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
+
     @Override
     public void write(Bundle bundle) {
         bundle.put("highScores", highScores);
@@ -84,10 +99,12 @@ public final class HighScoreService extends EngineService {
 
         private final String tag;
         private final int score;
+        private final double time;
 
-        private HighScoreData(String tag, int score) {
+        private HighScoreData(String tag, int score, double time) {
             this.tag = tag;
             this.score = score;
+            this.time = time;
         }
 
         public String getTag() {
@@ -97,5 +114,10 @@ public final class HighScoreService extends EngineService {
         public int getScore() {
             return score;
         }
+
+        public double getTime() {
+            return time;
+        }
     }
+
 }
