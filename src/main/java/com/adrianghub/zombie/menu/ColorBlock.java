@@ -15,7 +15,7 @@ public class ColorBlock extends Rectangle {
 
         setStrokeType(StrokeType.INSIDE);
         setStrokeWidth(2.5);
-        setStroke(Color.color(0.375, 0.138, 0.138, 0.66));
+        setStroke(Color.color(0.45, 0.457, 0.989, 0.66));
 
         var shadow = new InnerShadow(25, Color.BLACK);
         shadow.setOffsetX(-3);

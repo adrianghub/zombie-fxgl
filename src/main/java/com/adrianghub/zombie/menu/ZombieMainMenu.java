@@ -44,15 +44,15 @@ public class ZombieMainMenu extends FXGLMenu {
 
         getContentRoot().getChildren().setAll(new Rectangle(getAppWidth(), getAppHeight()));
 
-        var title = getUIFactoryService().newText(getSettings().getTitle(), Color.WHITE, 56.0);
-        title.setStroke(Color.ORANGERED);
-        title.setStrokeWidth(1.5);
+        var title = getUIFactoryService().newText(getSettings().getTitle(), Color.web("FF7433"), 56.0);
+        title.setStroke(Color.web("291418"));
+        title.setStrokeWidth(4.5);
         title.setEffect(new Bloom(0.6));
         centerTextBind(title, getAppWidth() / 2.0 - 20, 235);
 
         getContentRoot().getChildren().addAll(title);
 
-        var color = Color.DARKRED;
+        var color = Color.web("b70d01");
 
         var blocks = new ArrayList<ColorBlock>();
 
