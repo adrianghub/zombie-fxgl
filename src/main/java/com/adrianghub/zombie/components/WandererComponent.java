@@ -1,6 +1,4 @@
 package com.adrianghub.zombie.components;
-
-import com.almasb.fxgl.core.math.FXGLMath;
 import com.almasb.fxgl.dsl.components.ExpireCleanComponent;
 import com.almasb.fxgl.entity.component.Component;
 import com.almasb.fxgl.particle.ParticleComponent;
@@ -54,5 +52,9 @@ public class WandererComponent extends Component {
         animationBuilder()
                 .fadeIn(entity)
                 .buildAndPlay();
+    }
+
+    public int setHPPoints() {
+        return geti("score") > 8000 ? 3 : 1;
     }
 }

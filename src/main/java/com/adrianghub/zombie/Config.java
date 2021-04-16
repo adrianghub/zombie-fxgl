@@ -13,8 +13,8 @@ public class Config {
 
     public static final int LIVES_AMOUNT = 3;
 
-    public static final Integer SURVIVOR_HP = 3;
-    public static final Integer WANDERER_HP = 2;
+    public static Integer SURVIVOR_HP = 3;
+    public static Integer WANDERER_HP = 1;
     public static final Integer SPY_HP = 1;
 
     public static final Integer SPY_SPEED = 100;

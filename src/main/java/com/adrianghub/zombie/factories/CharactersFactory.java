@@ -41,7 +41,7 @@ public class CharactersFactory implements EntityFactory {
     @Spawns("wanderer")
     public Entity newWanderer(SpawnData data) {
 
-        var hp = new HealthIntComponent(WANDERER_HP);
+        var hp = new HealthIntComponent(new WandererComponent(WANDERER_SPEED).setHPPoints());
 
         var hpView = createHpView(hp, Color.VIOLET);
 

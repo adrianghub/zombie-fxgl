@@ -55,7 +55,7 @@ public class ZombieApp extends GameApplication {
         settings.setVersion("0.1");
         settings.setFontUI("zombie.ttf");
         settings.setWidth(1440);
-        settings.setHeight(900);
+        settings.setHeight(800);
         settings.addEngineService(HighScoreService.class);
         settings.setMainMenuEnabled(true);
         settings.setSceneFactory(new SceneFactory() {
@@ -77,6 +77,19 @@ public class ZombieApp extends GameApplication {
     protected void onPreInit() {
         // preload explosion sprite sheet
         getAssetLoader().loadTexture("explosion.png", 80 * 48, 80);
+    }
+
+
+    @Override
+    protected void initGameVars(Map<String, Object> vars) {
+        vars.put("time", 0.0);
+        vars.put("score", 0);
+        vars.put("lives", LIVES_AMOUNT);
+        vars.put("ammo", 999);
+        vars.put("numWanderers", WANDERERS_AMOUNT);
+        vars.put("numSpies", SPIES_AMOUNT);
+        vars.put("buff", 1);
+        vars.put("weaponType", WeaponType.PISTOL);
     }
 
     @Override
@@ -103,11 +116,22 @@ public class ZombieApp extends GameApplication {
         getWorldProperties().<Integer>addListener("score", (prev, now) -> {
             getService(HighScoreService.class).setScore(now);
 
+            WeaponType newType = WeaponType.upgradeWeaponByScore(geti("score"));
+
+            set("weaponType", newType);
+
             if (now >= DEMO_SCORE)
                 gameOver();
         });
 
-        getWorldProperties().<Double>addListener("time", (prev, now) -> getService(HighScoreService.class).setTime(now));
+        getWorldProperties().<Double>addListener("time",
+                (prev, now) -> {
+                    getService(HighScoreService.class).setTime(now);
+
+                    if(now > 200) {
+                        set("weaponType", WeaponType.TRIPLE_SHOTGUN);
+                    }
+                });
 
         getWorldProperties().<Integer>addListener("lives", (prev, now) -> {
             if (now == 0)
@@ -124,7 +148,6 @@ public class ZombieApp extends GameApplication {
             spiesLeft.bind(getip("numSpies").greaterThan(0));
 
             getGameTimer().runAtIntervalWhile(this::spawnSpy, SPY_SPAWN_INTERVAL, spiesLeft);
-
         }
     }
 
@@ -223,12 +246,12 @@ public class ZombieApp extends GameApplication {
     }
 
     private void killZombie(Entity zombie) {
-        Point2D spawnSubstractedZombiePosition = zombie.getCenter().subtract(64, 64);
+        Point2D spawnAlignedZombiePosition = zombie.getCenter().subtract(64, 64);
         Point2D spawnZombiePosition = zombie.getPosition();
 
         if (zombie.isType(SPY)) {
             SpyComponent spyComponent = zombie.getComponent(SpyComponent.class);
-            spyComponent.playDeathAnimation(spawnSubstractedZombiePosition);
+            spyComponent.playDeathAnimation(spawnAlignedZombiePosition);
             spyComponent.playBloodTraceAnimation(spawnZombiePosition);
         } else {
             WandererComponent wandererComponent = zombie.getComponent(WandererComponent.class);
@@ -237,17 +260,6 @@ public class ZombieApp extends GameApplication {
         }
 
         zombie.removeFromWorld();
-    }
-
-    @Override
-    protected void initGameVars(Map<String, Object> vars) {
-        vars.put("time", 0.0);
-        vars.put("score", 0);
-        vars.put("lives", LIVES_AMOUNT);
-        vars.put("ammo", 999);
-        vars.put("numWanderers", WANDERERS_AMOUNT);
-        vars.put("numSpies", SPIES_AMOUNT);
-        vars.put("buff", 1);
     }
 
     @Override
@@ -304,14 +316,41 @@ public class ZombieApp extends GameApplication {
             Text levelMessage = getUIFactoryService().newText("Hordes of zombies coming up...", Color.DARKRED, 38);
             Text bonusMessage = getUIFactoryService().newText("+ BONUS SCORE", Color.GOLD, 52);
 
-            setCenteredText(levelMessage);
-            setCenteredText(bonusMessage, seconds(4));
+            if (geti("score") <= 5000) {
 
-            inc("buff", +1);
-            inc("score", random(1, 500));
+                setCenteredText(levelMessage);
+                setCenteredText(bonusMessage, seconds(4));
 
-            inc("numWanderers", +2 * geti("buff"));
-            inc("numSpies", +2 * geti("buff"));
+                inc("buff", +1);
+                inc("score", random(100, 500));
+
+                inc("numWanderers", geti("buff"));
+                inc("numSpies", geti("buff"));
+
+            } else if (geti("score") > 5000 && geti("score") <= 10000) {
+
+                setCenteredText(levelMessage);
+                setCenteredText(bonusMessage, seconds(4));
+
+                inc("buff", +2);
+                inc("score", random(500, 1000));
+
+                inc("numWanderers", +2 * geti("buff"));
+                inc("numSpies", +2 * geti("buff"));
+
+            } else {
+
+                setCenteredText(levelMessage);
+                setCenteredText(bonusMessage, seconds(4));
+
+                inc("buff", +2);
+                inc("score", random(500, 1000));
+
+                inc("numWanderers", +2 * geti("buff"));
+                inc("numSpies", +2 * geti("buff"));
+
+            }
+
         }
     }
 
