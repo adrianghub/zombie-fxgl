@@ -1,7 +1,10 @@
 package com.adrianghub.zombie.components;
 
+import com.adrianghub.zombie.WeaponType;
+import com.adrianghub.zombie.factories.WeaponsFactory;
 import com.almasb.fxgl.core.math.Vec2;
 import com.almasb.fxgl.dsl.components.ExpireCleanComponent;
+import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.SpawnData;
 import com.almasb.fxgl.entity.component.Component;
 import com.almasb.fxgl.particle.ParticleComponent;
@@ -11,10 +14,13 @@ import javafx.scene.effect.BlendMode;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static com.almasb.fxgl.dsl.FXGL.animationBuilder;
 import static com.almasb.fxgl.dsl.FXGL.entityBuilder;
-import static com.almasb.fxgl.dsl.FXGLForKtKt.inc;
-import static com.almasb.fxgl.dsl.FXGLForKtKt.spawn;
+import static com.almasb.fxgl.dsl.FXGL.spawn;
+import static com.almasb.fxgl.dsl.FXGLForKtKt.*;
 
 public class SurvivorComponent extends Component {
 
@@ -39,13 +45,50 @@ public class SurvivorComponent extends Component {
     }
 
     public void shoot() {
-        Point2D center = entity.getCenter();
+        Point2D zombiePosition = entity.getCenter();
 
-        Vec2 dir = Vec2.fromAngle(entity.getRotation());
+        Point2D bulletSpawnDirection = (Vec2.fromAngle(entity.getRotation())).toPoint2D();
 
-        spawn("bullet", new SpawnData(center.getX(), center.getY()).put("dir", dir.toPoint2D()));
+        WeaponType type = geto("weaponType");
 
-        inc("ammo", -1);
+        List<Entity> bullets = new ArrayList<>();
+
+        switch (type) {
+            case TRIPLE_SHOTGUN:
+
+                bullets.add(spawnBullet(zombiePosition.subtract(
+                        new Point2D(bulletSpawnDirection.getY(), -bulletSpawnDirection.getX())
+                                .normalize()
+                                .multiply(10)), bulletSpawnDirection));
+                inc("ammo", -1);
+
+
+            case SHOTGUN:
+
+                bullets.add(spawnBullet(zombiePosition.add
+                        (new Point2D(bulletSpawnDirection.getY(), -bulletSpawnDirection.getX())
+                        .normalize()
+                        .multiply(10)), bulletSpawnDirection));
+                inc("ammo", -1);
+
+
+            case PISTOL:
+            default:
+                bullets.add(spawnBullet(zombiePosition, bulletSpawnDirection));
+                inc("ammo", -1);
+                break;
+        }
+
+    }
+
+    private Entity spawnBullet(Point2D position, Point2D direction) {
+        var data = new SpawnData(position.getX(), position.getY())
+                .put("dir", direction);
+        var e =  spawn("bullet", data);
+
+        WeaponsFactory.respawnBullet(e, data);
+
+        return e;
     }
 
     public void playSpawnAnimation() {
