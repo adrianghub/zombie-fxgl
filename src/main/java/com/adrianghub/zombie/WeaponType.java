@@ -1,6 +1,9 @@
 package com.adrianghub.zombie;
 
+import static com.almasb.fxgl.dsl.FXGLForKtKt.geti;
+
 public enum WeaponType {
+    NO_AMMO,
     PISTOL,
     SHOTGUN,
     TRIPLE_SHOTGUN;
@@ -10,4 +13,5 @@ public enum WeaponType {
 
         return PISTOL;
     }
+
 }

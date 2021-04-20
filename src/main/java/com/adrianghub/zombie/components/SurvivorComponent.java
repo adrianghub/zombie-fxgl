@@ -73,22 +73,27 @@ public class SurvivorComponent extends Component {
 
 
             case PISTOL:
-            default:
+
                 bullets.add(spawnBullet(zombiePosition, bulletSpawnDirection));
                 inc("ammo", -1);
+                break;
+
+            case NO_AMMO:
+            default:
                 break;
         }
 
     }
 
     private Entity spawnBullet(Point2D position, Point2D direction) {
-        var data = new SpawnData(position.getX(), position.getY())
-                .put("dir", direction);
-        var e =  spawn("bullet", data);
 
-        WeaponsFactory.respawnBullet(e, data);
+            var data = new SpawnData(position.getX(), position.getY())
+                    .put("dir", direction);
+            var e =  spawn("bullet", data);
 
-        return e;
+            WeaponsFactory.respawnBullet(e, data);
+
+            return e;
     }
 
     public void playSpawnAnimation() {

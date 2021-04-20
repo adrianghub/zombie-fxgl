@@ -85,7 +85,7 @@ public class ZombieApp extends GameApplication {
         vars.put("time", 0.0);
         vars.put("score", 0);
         vars.put("lives", LIVES_AMOUNT);
-        vars.put("ammo", 999);
+        vars.put("ammo", 10);
         vars.put("numWanderers", WANDERERS_AMOUNT);
         vars.put("numSpies", SPIES_AMOUNT);
         vars.put("buff", 1);
@@ -130,6 +130,15 @@ public class ZombieApp extends GameApplication {
 
                     if(now > 200) {
                         set("weaponType", WeaponType.TRIPLE_SHOTGUN);
+                    }
+                });
+
+        getWorldProperties().<Integer>addListener("ammo",
+                (prev, now) -> {
+
+                    if(now < 0) {
+                        set("weaponType", WeaponType.NO_AMMO);
+                        set("ammo", 0);
                     }
                 });
 
