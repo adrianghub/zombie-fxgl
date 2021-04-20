@@ -3,10 +3,7 @@ package com.adrianghub.zombie;
 import com.adrianghub.zombie.components.SpyComponent;
 import com.adrianghub.zombie.components.SurvivorComponent;
 import com.adrianghub.zombie.components.WandererComponent;
-import com.adrianghub.zombie.factories.UIPartsFactory;
-import com.adrianghub.zombie.factories.ViewsFactory;
-import com.adrianghub.zombie.factories.CharactersFactory;
-import com.adrianghub.zombie.factories.WeaponsFactory;
+import com.adrianghub.zombie.factories.*;
 import com.adrianghub.zombie.menu.ZombieMainMenu;
 import com.adrianghub.zombie.service.HighScoreService;
 import com.almasb.fxgl.app.GameApplication;
@@ -42,7 +39,7 @@ public class ZombieApp extends GameApplication {
     private SurvivorComponent survivorComponent;
 
     public enum EntityType {
-        SURVIVOR, BULLET, LAVA, WANDERER, SPY, AMMO
+        SURVIVOR, BULLET, LAVA, WANDERER, SPY, AMMO, HEART
     }
 
     public Entity getSurvivor() {
@@ -85,7 +82,7 @@ public class ZombieApp extends GameApplication {
         vars.put("time", 0.0);
         vars.put("score", 0);
         vars.put("lives", LIVES_AMOUNT);
-        vars.put("ammo", 10);
+        vars.put("ammo", 25);
         vars.put("numWanderers", WANDERERS_AMOUNT);
         vars.put("numSpies", SPIES_AMOUNT);
         vars.put("buff", 1);
@@ -99,8 +96,11 @@ public class ZombieApp extends GameApplication {
         getGameWorld().addEntityFactory(new ViewsFactory());
         getGameWorld().addEntityFactory(new UIPartsFactory());
         getGameWorld().addEntityFactory(new WeaponsFactory());
+        getGameWorld().addEntityFactory(new AddonsFactory());
 
         getGameScene().setBackgroundColor(Color.color(0, 0, 0.05, 0.5));
+
+        spawn("heart", random(50, getAppWidth() - 50), random(50, getAppHeight() - 50) );
 
         spawn("verticalLava", 0, 0);
         spawn("verticalLava", getAppWidth() - 10, 0);
@@ -230,6 +230,7 @@ public class ZombieApp extends GameApplication {
         physics.addCollisionHandler(survivorZombie);
         physics.addCollisionHandler(survivorZombie.copyFor(SURVIVOR, SPY));
         physics.addCollisionHandler(new SurvivorAmmoHandler());
+        physics.addCollisionHandler(new SurvivorHeartHandler());
 
         CollisionHandler bulletZombie = new CollisionHandler(BULLET, WANDERER) {
             @Override
@@ -332,6 +333,7 @@ public class ZombieApp extends GameApplication {
                 setCenteredText(bonusMessage, seconds(4));
 
                 spawn("ammo", random(50, getAppWidth() - 50), random(50, getAppHeight() - 50) );
+                spawn("heart", random(50, getAppWidth() - 50), random(50, getAppHeight() - 50) );
 
                 inc("buff", +1);
                 inc("score", random(100, 500));
@@ -344,6 +346,9 @@ public class ZombieApp extends GameApplication {
                 setCenteredText(levelMessage);
                 setCenteredText(bonusMessage, seconds(4));
 
+                spawn("ammo", random(50, getAppWidth() - 50), random(50, getAppHeight() - 50) );
+                spawn("heart", random(50, getAppWidth() - 50), random(50, getAppHeight() - 50) );
+
                 inc("buff", +2);
                 inc("score", random(500, 1000));
 
@@ -354,6 +359,9 @@ public class ZombieApp extends GameApplication {
 
                 setCenteredText(levelMessage);
                 setCenteredText(bonusMessage, seconds(4));
+
+                spawn("ammo", random(50, getAppWidth() - 50), random(50, getAppHeight() - 50) );
+                spawn("heart", random(50, getAppWidth() - 50), random(50, getAppHeight() - 50) );
 
                 inc("buff", +2);
                 inc("score", random(500, 1000));
