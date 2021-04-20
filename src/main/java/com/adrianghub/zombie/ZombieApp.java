@@ -98,7 +98,7 @@ public class ZombieApp extends GameApplication {
         getGameWorld().addEntityFactory(new WeaponsFactory());
         getGameWorld().addEntityFactory(new AddonsFactory());
 
-        getGameScene().setBackgroundColor(Color.color(0, 0, 0.05, 0.5));
+        getGameScene().setBackgroundColor(Color.color(0.05, 0, 0.1, 0.65));
 
         spawn("heart", random(50, getAppWidth() - 50), random(50, getAppHeight() - 50) );
 
@@ -136,9 +136,8 @@ public class ZombieApp extends GameApplication {
         getWorldProperties().<Integer>addListener("ammo",
                 (prev, now) -> {
 
-                    if(now < 0) {
+                    if(now <= 0) {
                         set("weaponType", WeaponType.NO_AMMO);
-                        set("ammo", 0);
                     }
                 });
 
@@ -347,6 +346,7 @@ public class ZombieApp extends GameApplication {
                 setCenteredText(bonusMessage, seconds(4));
 
                 spawn("ammo", random(50, getAppWidth() - 50), random(50, getAppHeight() - 50) );
+                spawn("ammo", random(50, getAppWidth() - 50), random(50, getAppHeight() - 50) );
                 spawn("heart", random(50, getAppWidth() - 50), random(50, getAppHeight() - 50) );
 
                 inc("buff", +2);
@@ -361,9 +361,12 @@ public class ZombieApp extends GameApplication {
                 setCenteredText(bonusMessage, seconds(4));
 
                 spawn("ammo", random(50, getAppWidth() - 50), random(50, getAppHeight() - 50) );
+                spawn("ammo", random(50, getAppWidth() - 50), random(50, getAppHeight() - 50) );
+                spawn("ammo", random(50, getAppWidth() - 50), random(50, getAppHeight() - 50) );
+                spawn("heart", random(50, getAppWidth() - 50), random(50, getAppHeight() - 50) );
                 spawn("heart", random(50, getAppWidth() - 50), random(50, getAppHeight() - 50) );
 
-                inc("buff", +2);
+                inc("buff", +1);
                 inc("score", random(500, 1000));
 
                 inc("numWanderers", +2 * geti("buff"));

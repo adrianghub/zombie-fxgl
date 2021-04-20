@@ -33,6 +33,7 @@ public class CharactersFactory implements EntityFactory {
                 .viewWithBBox("survivor.png")
                 .view(hpView)
                 .with(hp)
+                .zIndex(50)
                 .with(new SurvivorComponent())
                 .collidable()
                 .build();
