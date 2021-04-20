@@ -9,12 +9,11 @@ public class Config {
 
     public static final String SAVE_FILE_NAME = "hall_of_fame.txt";
 
-    public static final Integer DEMO_SCORE = 20_000;
+    public static final Integer DEMO_SCORE = 50_000;
 
     public static final int LIVES_AMOUNT = 3;
 
     public static Integer SURVIVOR_HP = 3;
-    public static Integer WANDERER_HP = 1;
     public static final Integer SPY_HP = 1;
 
     public static final Integer SPY_SPEED = 100;

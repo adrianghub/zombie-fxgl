@@ -102,6 +102,10 @@ public class ZombieApp extends GameApplication {
 
         spawn("heart", random(50, getAppWidth() - 50), random(50, getAppHeight() - 50) );
 
+        spawn("shotgun", random(50, getAppWidth() - 50), random(50, getAppHeight() - 50) );
+        spawn("triple-shotgun", random(50, getAppWidth() - 50), random(50, getAppHeight() - 50) );
+
+
         spawn("verticalLava", 0, 0);
         spawn("verticalLava", getAppWidth() - 10, 0);
 
@@ -116,10 +120,6 @@ public class ZombieApp extends GameApplication {
         getWorldProperties().<Integer>addListener("score", (prev, now) -> {
             getService(HighScoreService.class).setScore(now);
 
-            WeaponType newType = WeaponType.upgradeWeaponByScore(geti("score"));
-
-            set("weaponType", newType);
-
             if (now >= DEMO_SCORE)
                 gameOver();
         });
@@ -128,7 +128,7 @@ public class ZombieApp extends GameApplication {
                 (prev, now) -> {
                     getService(HighScoreService.class).setTime(now);
 
-                    if(now > 200) {
+                    if(now > 500) {
                         set("weaponType", WeaponType.TRIPLE_SHOTGUN);
                     }
                 });
@@ -138,7 +138,6 @@ public class ZombieApp extends GameApplication {
 
                     if(now <= 0) {
                         set("weaponType", WeaponType.NO_AMMO);
-                        set("ammo", 0);
                     }
                 });
 
@@ -231,6 +230,8 @@ public class ZombieApp extends GameApplication {
         physics.addCollisionHandler(survivorZombie.copyFor(SURVIVOR, SPY));
         physics.addCollisionHandler(new SurvivorAmmoHandler());
         physics.addCollisionHandler(new SurvivorHeartHandler());
+        physics.addCollisionHandler(new SurvivorShotgunHandler());
+        physics.addCollisionHandler(new SurvivorTripleShotgunHandler());
 
         CollisionHandler bulletZombie = new CollisionHandler(BULLET, WANDERER) {
             @Override
@@ -350,6 +351,8 @@ public class ZombieApp extends GameApplication {
                 spawn("ammo", random(50, getAppWidth() - 50), random(50, getAppHeight() - 50) );
                 spawn("heart", random(50, getAppWidth() - 50), random(50, getAppHeight() - 50) );
 
+                spawn("shotgun", random(50, getAppWidth() - 50), random(50, getAppHeight() - 50) );
+
                 inc("buff", +2);
                 inc("score", random(500, 1000));
 
@@ -366,6 +369,8 @@ public class ZombieApp extends GameApplication {
                 spawn("ammo", random(50, getAppWidth() - 50), random(50, getAppHeight() - 50) );
                 spawn("heart", random(50, getAppWidth() - 50), random(50, getAppHeight() - 50) );
                 spawn("heart", random(50, getAppWidth() - 50), random(50, getAppHeight() - 50) );
+
+                spawn("shotgun", random(50, getAppWidth() - 50), random(50, getAppHeight() - 50) );
 
                 inc("buff", +1);
                 inc("score", random(500, 1000));

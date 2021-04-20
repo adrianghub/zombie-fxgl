@@ -60,7 +60,9 @@ public class SurvivorComponent extends Component {
                         new Point2D(bulletSpawnDirection.getY(), -bulletSpawnDirection.getX())
                                 .normalize()
                                 .multiply(10)), bulletSpawnDirection));
-                inc("ammo", -1);
+                if (geti("ammo") > 2) {
+                    inc("ammo", -1);
+                }
 
 
             case SHOTGUN:
@@ -69,8 +71,9 @@ public class SurvivorComponent extends Component {
                         (new Point2D(bulletSpawnDirection.getY(), -bulletSpawnDirection.getX())
                         .normalize()
                         .multiply(10)), bulletSpawnDirection));
-                inc("ammo", -1);
-
+                if (geti("ammo") > 1) {
+                    inc("ammo", -1);
+                }
 
             case PISTOL:
 

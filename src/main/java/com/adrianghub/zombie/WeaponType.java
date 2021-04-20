@@ -6,12 +6,12 @@ public enum WeaponType {
     NO_AMMO,
     PISTOL,
     SHOTGUN,
-    TRIPLE_SHOTGUN;
+    TRIPLE_SHOTGUN
 
-    public static WeaponType upgradeWeaponByScore(int score) {
-        if (score > 8000) return SHOTGUN;
-
-        return PISTOL;
-    }
+//    public static WeaponType upgradeWeaponByScore(int score) {
+//        if (score > 8000) return SHOTGUN;
+//
+//        return PISTOL;
+//    }
 
 }

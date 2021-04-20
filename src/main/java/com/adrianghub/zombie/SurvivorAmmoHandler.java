@@ -21,8 +21,11 @@ public class SurvivorAmmoHandler extends CollisionHandler {
 
         ammo.getComponent(CollidableComponent.class).setValue(false);
 
+        set("weaponType", WeaponType.PISTOL);
+
         if (geti("score") >= 10000) {
             inc("ammo", + 100);
+            set("weaponType", WeaponType.SHOTGUN);
         }
         else if (geti("score") > 5000 && geti("score") < 10000) {
             inc("ammo", + 50);
