@@ -138,6 +138,7 @@ public class ZombieApp extends GameApplication {
 
                     if(now <= 0) {
                         set("weaponType", WeaponType.NO_AMMO);
+                        set("ammo", 0);
                     }
                 });
 
