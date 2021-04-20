@@ -42,7 +42,7 @@ public class ZombieApp extends GameApplication {
     private SurvivorComponent survivorComponent;
 
     public enum EntityType {
-        SURVIVOR, BULLET, LAVA, WANDERER, SPY
+        SURVIVOR, BULLET, LAVA, WANDERER, SPY, AMMO
     }
 
     public Entity getSurvivor() {
@@ -229,6 +229,7 @@ public class ZombieApp extends GameApplication {
 
         physics.addCollisionHandler(survivorZombie);
         physics.addCollisionHandler(survivorZombie.copyFor(SURVIVOR, SPY));
+        physics.addCollisionHandler(new SurvivorAmmoHandler());
 
         CollisionHandler bulletZombie = new CollisionHandler(BULLET, WANDERER) {
             @Override
@@ -329,6 +330,8 @@ public class ZombieApp extends GameApplication {
 
                 setCenteredText(levelMessage);
                 setCenteredText(bonusMessage, seconds(4));
+
+                spawn("ammo", random(50, getAppWidth() - 50), random(50, getAppHeight() - 50) );
 
                 inc("buff", +1);
                 inc("score", random(100, 500));
