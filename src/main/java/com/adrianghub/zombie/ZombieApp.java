@@ -23,7 +23,6 @@ import javafx.geometry.Point2D;
 import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
@@ -57,13 +56,11 @@ public class ZombieApp extends GameApplication {
         settings.setMainMenuEnabled(true);
         settings.setSceneFactory(new SceneFactory() {
             @Override
-            @NotNull
             public FXGLMenu newMainMenu() {
                 return new ZombieMainMenu();
             }
 
             @Override
-            @NotNull
             public FXGLMenu newGameMenu() {
                 return new SimpleGameMenu();
             }
