@@ -2,11 +2,12 @@ plugins {
     id 'java'
     id 'application'
     id 'org.openjfx.javafxplugin' version '0.0.9'
+    id 'org.beryx.jlink' version '2.16.2'
 }
 
 javafx {
     version = "11.0.2"
-    modules = [ 'javafx.controls' ]
+    modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.swing' ]
 }
 
 group 'org.example'
@@ -28,4 +29,15 @@ dependencies {
 
 test {
     useJUnitPlatform()
+}
+
+run {
+    jvmArgs = ['-Djdk.gtk.version=2'] // required due to a bug in Java: https://github.com/javafxports/openjdk-jfx/issues/175
+}
+
+jlink {
+    launcher {
+        name = 'Survivor'
+        jvmArgs = ['-Djdk.gtk.version=2'] // required due to a bug in Java: https://github.com/javafxports/openjdk-jfx/issues/175
+    }
 }
