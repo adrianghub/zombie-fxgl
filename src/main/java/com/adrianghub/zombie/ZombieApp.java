@@ -190,6 +190,7 @@ public class ZombieApp extends GameApplication {
         onKey(KeyCode.S, () -> survivor.getComponent(SurvivorComponent.class).moveBackward());
         onKey(KeyCode.A, () -> survivor.getComponent(SurvivorComponent.class).turnLeft());
         onKey(KeyCode.D, () -> survivor.getComponent(SurvivorComponent.class).turnRight());
+        onKey(KeyCode.ESCAPE, ZombieMainMenu::new);
 
         onKey(KeyCode.UP, () -> survivor.getComponent(SurvivorComponent.class).moveForward());
         onKey(KeyCode.DOWN, () -> survivor.getComponent(SurvivorComponent.class).moveBackward());
@@ -366,8 +367,6 @@ public class ZombieApp extends GameApplication {
             }
         }
 
-
-
         if (geti("numWanderers") < 1 && geti("numSpies") < 1) {
             Text levelMessage = getUIFactoryService().newText("Hordes of zombies coming up...", Color.DARKRED, 38);
             Text bossMessage = getUIFactoryService().newText("Suddenly you've heard some weird noise from the ground...", Color.DARKRED, 38);
@@ -401,7 +400,7 @@ public class ZombieApp extends GameApplication {
                 inc("numWanderers", +2);
                 inc("numSpies", +2);
                 inc("score", random(100, 1000));
-                inc("live", +1);
+                inc("lives", +1);
 
             } else if (geti("score") > 7000 && geti("score") <= 15000) {
 

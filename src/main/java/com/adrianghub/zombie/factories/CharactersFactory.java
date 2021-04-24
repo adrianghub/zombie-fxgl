@@ -84,7 +84,7 @@ public class CharactersFactory implements EntityFactory {
     public Entity newBoss(SpawnData data) {
         var hp = new HealthIntComponent(BOSS_HP);
 
-        var hpView = createHpView(hp, Color.ORANGERED);
+        var hpView = createHpView(hp, Color.ORANGERED, 88);
 
         ParticleEmitter emitter = ParticleEmitters.newFireEmitter();
         emitter.setStartColor(Color.color(1.0, 1.0, 0.5, 0.5));
