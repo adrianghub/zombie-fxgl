@@ -1,6 +1,5 @@
 package com.adrianghub.zombie.components;
 
-import com.adrianghub.zombie.WeaponType;
 import com.adrianghub.zombie.factories.WeaponsFactory;
 import com.almasb.fxgl.core.math.Vec2;
 import com.almasb.fxgl.dsl.components.ExpireCleanComponent;
@@ -49,7 +48,7 @@ public class SurvivorComponent extends Component {
 
         Point2D bulletSpawnDirection = (Vec2.fromAngle(entity.getRotation())).toPoint2D();
 
-        WeaponType type = geto("weaponType");
+        WeaponsFactory.WeaponType type = geto("weaponType");
 
         List<Entity> bullets = new ArrayList<>();
 

@@ -1,4 +1,4 @@
-package com.adrianghub.zombie;
+package com.adrianghub.zombie.handlers;
 
 import com.almasb.fxgl.animation.Interpolators;
 import com.almasb.fxgl.entity.Entity;
@@ -7,15 +7,15 @@ import com.almasb.fxgl.physics.CollisionHandler;
 import javafx.geometry.Point2D;
 import javafx.util.Duration;
 
-import static com.adrianghub.zombie.WeaponType.SHOTGUN;
-import static com.adrianghub.zombie.ZombieApp.EntityType.AMMO;
 import static com.adrianghub.zombie.ZombieApp.EntityType.SURVIVOR;
-import static com.almasb.fxgl.dsl.FXGL.*;
+import static com.adrianghub.zombie.factories.WeaponsFactory.WeaponType.TRIPLE_SHOTGUN;
+import static com.almasb.fxgl.dsl.FXGL.animationBuilder;
+import static com.almasb.fxgl.dsl.FXGL.set;
 
-public class SurvivorShotgunHandler extends CollisionHandler {
+public class SurvivorTripleShotgunHandler extends CollisionHandler {
 
-    public SurvivorShotgunHandler() {
-        super(SURVIVOR, SHOTGUN);
+    public SurvivorTripleShotgunHandler() {
+        super(SURVIVOR, TRIPLE_SHOTGUN);
     }
 
     @Override
@@ -23,7 +23,7 @@ public class SurvivorShotgunHandler extends CollisionHandler {
 
         shotgun.getComponent(CollidableComponent.class).setValue(false);
 
-        set("weaponType", SHOTGUN);
+        set("weaponType", TRIPLE_SHOTGUN);
 
         animationBuilder()
                 .duration(Duration.seconds(0.75))

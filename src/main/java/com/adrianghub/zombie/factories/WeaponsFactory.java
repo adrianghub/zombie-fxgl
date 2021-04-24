@@ -12,12 +12,21 @@ import com.almasb.fxgl.entity.Spawns;
 import javafx.geometry.Point2D;
 import javafx.util.Duration;
 
-import static com.adrianghub.zombie.WeaponType.SHOTGUN;
-import static com.adrianghub.zombie.WeaponType.TRIPLE_SHOTGUN;
 import static com.adrianghub.zombie.ZombieApp.EntityType.BULLET;
+import static com.adrianghub.zombie.factories.WeaponsFactory.WeaponType.SHOTGUN;
+import static com.adrianghub.zombie.factories.WeaponsFactory.WeaponType.TRIPLE_SHOTGUN;
 import static com.almasb.fxgl.dsl.FXGL.entityBuilder;
 
 public class WeaponsFactory implements EntityFactory {
+
+    public enum WeaponType {
+        NO_AMMO,
+        PISTOL,
+        SHOTGUN,
+        TRIPLE_SHOTGUN
+    }
+
+
     @Spawns("bullet")
     public Entity newBullet(SpawnData data) {
         var expireClean = new ExpireCleanComponent(Duration.seconds(0.5)).animateOpacity();

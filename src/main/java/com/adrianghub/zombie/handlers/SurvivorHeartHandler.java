@@ -1,4 +1,4 @@
-package com.adrianghub.zombie;
+package com.adrianghub.zombie.handlers;
 
 import com.almasb.fxgl.animation.Interpolators;
 import com.almasb.fxgl.dsl.components.HealthIntComponent;

@@ -1,4 +1,4 @@
-package com.adrianghub.zombie;
+package com.adrianghub.zombie.handlers;
 
 import com.almasb.fxgl.animation.Interpolators;
 import com.almasb.fxgl.entity.Entity;
@@ -8,6 +8,7 @@ import javafx.geometry.Point2D;
 import javafx.util.Duration;
 
 import static com.adrianghub.zombie.ZombieApp.EntityType.*;
+import static com.adrianghub.zombie.factories.WeaponsFactory.WeaponType.*;
 import static com.almasb.fxgl.dsl.FXGL.*;
 
 public class SurvivorAmmoHandler extends CollisionHandler {
@@ -21,11 +22,11 @@ public class SurvivorAmmoHandler extends CollisionHandler {
 
         ammo.getComponent(CollidableComponent.class).setValue(false);
 
-        set("weaponType", WeaponType.PISTOL);
+        set("weaponType", PISTOL);
 
         if (geti("score") >= 10000) {
             inc("ammo", + 100);
-            set("weaponType", WeaponType.SHOTGUN);
+            set("weaponType", SHOTGUN);
         }
         else if (geti("score") > 5000 && geti("score") < 10000) {
             inc("ammo", + 50);
