@@ -1,5 +1,6 @@
 package com.adrianghub.zombie;
 
+import com.adrianghub.zombie.components.BossComponent;
 import com.adrianghub.zombie.components.SurvivorComponent;
 import com.adrianghub.zombie.factories.*;
 import com.adrianghub.zombie.handlers.SurvivorAmmoHandler;
@@ -21,6 +22,7 @@ import com.almasb.fxgl.physics.PhysicsWorld;
 import javafx.animation.Interpolator;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.geometry.Point2D;
 import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
@@ -42,7 +44,7 @@ public class ZombieApp extends GameApplication {
     private SurvivorComponent survivorComponent;
 
     public enum EntityType {
-        SURVIVOR, BULLET, LAVA, WANDERER, SPY, AMMO, HEART
+        SURVIVOR, BULLET, LAVA, WANDERER, SPY, AMMO, HEART, BOSS
     }
 
     public Entity getSurvivor() {
@@ -85,7 +87,7 @@ public class ZombieApp extends GameApplication {
         vars.put("time", 0.0);
         vars.put("score", 0);
         vars.put("lives", LIVES_AMOUNT);
-        vars.put("ammo", 25);
+        vars.put("ammo", 50);
         vars.put("numWanderers", WANDERERS_AMOUNT);
         vars.put("numSpies", SPIES_AMOUNT);
         vars.put("buff", 1);
@@ -113,7 +115,6 @@ public class ZombieApp extends GameApplication {
         survivor = spawn("survivor", getAppWidth() / 2.0 - 15, getAppHeight() / 2.0 - 15);
         survivorComponent = survivor.getComponent(SurvivorComponent.class);
         survivorComponent.playSpawnAnimation();
-
 
         getWorldProperties().<Integer>addListener("score", (prev, now) -> {
             getService(HighScoreService.class).setScore(now);
@@ -224,6 +225,34 @@ public class ZombieApp extends GameApplication {
             }
         };
 
+        CollisionHandler survivorZombieBoss = new CollisionHandler(SURVIVOR, BOSS) {
+
+            @Override
+            protected void onCollisionBegin(Entity survivor, Entity zombie) {
+
+                var bossHP = zombie.getComponent(HealthIntComponent.class);
+                bossHP.setValue(bossHP.getValue() - 1);
+
+                killZombie(zombie);
+                spawn("dangerOverlay");
+
+                var hp = survivor.getComponent(HealthIntComponent.class);
+                hp.setValue(hp.getValue() - 1);
+
+                if (hp.isZero()) {
+                    killZombie(zombie);
+                    spawn("dangerOverlay");
+
+                    inc("lives", -1);
+
+                    survivor.setPosition(getAppWidth() / 2.0 - 15, getAppHeight() / 2.0 - 15);
+                    survivorComponent.playSpawnAnimation();
+                    hp.setValue(3);
+                }
+            }
+        };
+
+        physics.addCollisionHandler(survivorZombieBoss);
         physics.addCollisionHandler(survivorZombie);
         physics.addCollisionHandler(survivorZombie.copyFor(SURVIVOR, SPY));
         physics.addCollisionHandler(new SurvivorAmmoHandler());
@@ -251,7 +280,39 @@ public class ZombieApp extends GameApplication {
             }
         };
 
+        CollisionHandler bulletZombieBoss = new CollisionHandler(BULLET, BOSS) {
+            @Override
+            protected void onCollisionBegin(Entity bullet, Entity zombie) {
+                Point2D spawnZombiePosition = zombie.getCenter();
+
+                var hp = zombie.getComponent(HealthIntComponent.class);
+                var bossComponent = zombie.getComponent(BossComponent.class);
+
+                if (hp.getValue() > 1) {
+                    bullet.removeFromWorld();
+                    hp.damage(1);
+                    bossComponent.playDeathAnimation(spawnZombiePosition);
+                    return;
+                }
+
+                spawn("textScore", new SpawnData(zombie.getPosition()).put("text", "+1 kill"));
+                bullet.removeFromWorld();
+
+                killZombie(zombie);
+                zombie.removeFromWorld();
+
+                inc("score", +1000);
+                inc("lives", +1);
+
+                spawnRunner("heart", 2);
+                spawnRunner("ammo", 2);
+                spawnRunner("shotgun", 1);
+                spawnRunner("triple-shotgun", 1);
+            }
+        };
+
         physics.addCollisionHandler(bulletZombie);
+        physics.addCollisionHandler(bulletZombieBoss);
         physics.addCollisionHandler(bulletZombie.copyFor(BULLET, SPY));
     }
 
@@ -329,6 +390,10 @@ public class ZombieApp extends GameApplication {
                 spawnRunner("ammo", 2);
                 spawnRunner("heart", 1);
                 spawnRunner("shotgun", 1);
+
+                Entity boss = spawn("boss",0 ,0);
+                BossComponent bossComponent = boss.getComponent(BossComponent.class);
+                bossComponent.playSpawnAnimation();
 
                 inc("lives", 1);
 

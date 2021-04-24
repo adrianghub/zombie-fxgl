@@ -15,6 +15,7 @@ public class Config {
 
     public static Integer SURVIVOR_HP = 3;
     public static final Integer SPY_HP = 1;
+    public static final Integer BOSS_HP = 10;
 
     public static final Integer SPY_SPEED = 100;
     public static final Integer WANDERER_SPEED = 150;

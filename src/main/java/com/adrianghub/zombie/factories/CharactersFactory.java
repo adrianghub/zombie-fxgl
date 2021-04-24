@@ -1,6 +1,7 @@
 package com.adrianghub.zombie.factories;
 
 import com.adrianghub.zombie.ZombieApp;
+import com.adrianghub.zombie.components.BossComponent;
 import com.adrianghub.zombie.components.SpyComponent;
 import com.adrianghub.zombie.components.SurvivorComponent;
 import com.adrianghub.zombie.components.WandererComponent;
@@ -72,6 +73,25 @@ public class CharactersFactory implements EntityFactory {
                 .with(hp)
                 .collidable()
                 .with(new SpyComponent(FXGL.<ZombieApp>getAppCast().getSurvivor(), SPY_SPEED))
+                .build();
+    }
+
+    @Spawns("boss")
+    public Entity newBoss(SpawnData data) {
+        var hp = new HealthIntComponent(BOSS_HP);
+
+        var hpView = createHpView(hp, Color.ORANGERED);
+
+        return entityBuilder(data)
+                .type(BOSS)
+                .viewWithBBox("zombie-spy.png")
+                .view(hpView)
+                .with(hp)
+                .collidable()
+                .with(new RandomMoveComponent(
+                        new Rectangle2D(0, 0,
+                                getAppWidth(), getAppHeight()), 150))
+                .with(new BossComponent(FXGL.<ZombieApp>getAppCast().getSurvivor(), SPY_SPEED))
                 .build();
     }
 }
