@@ -303,7 +303,6 @@ public class ZombieApp extends GameApplication {
                 zombie.removeFromWorld();
 
                 inc("score", +1000);
-                inc("lives", +1);
 
                 spawnRunner("heart", 2);
                 spawnRunner("ammo", 2);
@@ -393,8 +392,6 @@ public class ZombieApp extends GameApplication {
                 spawnRunner("heart", 1);
                 spawnRunner("shotgun", 1);
 
-                inc("numBosses", +1);
-
                 if (geti("numBosses") >= 1) {
                     Entity boss = spawn("boss",0 ,0);
                     BossComponent bossComponent = boss.getComponent(BossComponent.class);
@@ -404,8 +401,9 @@ public class ZombieApp extends GameApplication {
                 inc("numWanderers", +2);
                 inc("numSpies", +2);
                 inc("score", random(100, 1000));
+                inc("live", +1);
 
-            } else if (geti("score") > 7000 && geti("score") <= 1500) {
+            } else if (geti("score") > 7000 && geti("score") <= 15000) {
 
                 setCenteredText(levelMessage);
                 setCenteredText(scoreBonusMessage, seconds(4));
@@ -427,12 +425,12 @@ public class ZombieApp extends GameApplication {
                 inc("numBosses", +1);
 
                 if (geti("numBosses") >= 1) {
-                    Entity boss = spawn("boss",0 ,0);
-                    BossComponent bossComponent = boss.getComponent(BossComponent.class);
-                    bossComponent.playSpawnAnimation();
-
-                    if (geti("numBosses") == 2) {
-                        inc("numBosses", -2);
+                    if (geti("numBosses") > 2) {
+                        inc("numBosses", -4);
+                    } else {
+                        Entity boss = spawn("boss",0 ,0);
+                        BossComponent bossComponent = boss.getComponent(BossComponent.class);
+                        bossComponent.playSpawnAnimation();
                     }
                 }
 

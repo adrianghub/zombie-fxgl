@@ -25,11 +25,8 @@ public class SurvivorAmmoHandler extends CollisionHandler {
         set("weaponType", PISTOL);
 
         if (geti("score") >= 10000) {
-            inc("ammo", + 100);
-            set("weaponType", SHOTGUN);
-        }
-        else if (geti("score") > 5000 && geti("score") < 10000) {
             inc("ammo", + 50);
+            set("weaponType", SHOTGUN);
         } else {
             inc("ammo", +25);
         }
