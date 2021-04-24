@@ -18,6 +18,19 @@ public class ProgressBarHP {
 
     }
 
+    public static ProgressBar createHpView(HealthIntComponent hp, Color color, int width) {
+        var hpView = new ProgressBar(false);
+
+        hpView.setFill(color);
+        hpView.setMaxValue(hp.getValue());
+        hpView.setWidth(width);
+        hpView.setTranslateY(-10);
+        hpView.currentValueProperty().bind(hp.valueProperty());
+
+        return hpView;
+
+    }
+
     public static ProgressBar createHpView(HealthIntComponent hp, Color color, int width, double xPosition, double yPosition, double rotation) {
         var hpView = new ProgressBar(false);
 
