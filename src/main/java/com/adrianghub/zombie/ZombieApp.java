@@ -1,8 +1,6 @@
 package com.adrianghub.zombie;
 
-import com.adrianghub.zombie.components.SpyComponent;
 import com.adrianghub.zombie.components.SurvivorComponent;
-import com.adrianghub.zombie.components.WandererComponent;
 import com.adrianghub.zombie.factories.*;
 import com.adrianghub.zombie.handlers.SurvivorAmmoHandler;
 import com.adrianghub.zombie.handlers.SurvivorHeartHandler;
@@ -23,7 +21,6 @@ import com.almasb.fxgl.physics.PhysicsWorld;
 import javafx.animation.Interpolator;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.geometry.Point2D;
 import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
@@ -34,6 +31,7 @@ import java.util.Map;
 import static com.adrianghub.zombie.Config.*;
 import static com.adrianghub.zombie.ZombieApp.EntityType.*;
 import static com.adrianghub.zombie.factories.WeaponsFactory.*;
+import static com.adrianghub.zombie.handlers.ActionHandler.*;
 import static com.adrianghub.zombie.ui.UIText.*;
 import static com.almasb.fxgl.dsl.FXGL.*;
 import static javafx.util.Duration.seconds;
@@ -105,17 +103,12 @@ public class ZombieApp extends GameApplication {
 
         getGameScene().setBackgroundColor(Color.color(0.05, 0, 0.1, 0.65));
 
-        spawn("heart", random(50, getAppWidth() - 50), random(50, getAppHeight() - 50) );
+        spawnRunner("heart", 1);
 
-        spawn("shotgun", random(50, getAppWidth() - 50), random(50, getAppHeight() - 50) );
-        spawn("triple-shotgun", random(50, getAppWidth() - 50), random(50, getAppHeight() - 50) );
+        spawnRunner("shotgun", 1);
+        spawnRunner("triple-shotgun", 1);
 
-
-        spawn("verticalLava", 0, 0);
-        spawn("verticalLava", getAppWidth() - 10, 0);
-
-        spawn("horizontalLava", 0, 0);
-        spawn("horizontalLava", 0, getAppHeight() - 10);
+        spawnGameLava();
 
         survivor = spawn("survivor", getAppWidth() / 2.0 - 15, getAppHeight() / 2.0 - 15);
         survivorComponent = survivor.getComponent(SurvivorComponent.class);
@@ -262,23 +255,6 @@ public class ZombieApp extends GameApplication {
         physics.addCollisionHandler(bulletZombie.copyFor(BULLET, SPY));
     }
 
-    private void killZombie(Entity zombie) {
-        Point2D spawnAlignedZombiePosition = zombie.getCenter().subtract(64, 64);
-        Point2D spawnZombiePosition = zombie.getPosition();
-
-        if (zombie.isType(SPY)) {
-            SpyComponent spyComponent = zombie.getComponent(SpyComponent.class);
-            spyComponent.playDeathAnimation(spawnAlignedZombiePosition);
-            spyComponent.playBloodTraceAnimation(spawnZombiePosition);
-        } else {
-            WandererComponent wandererComponent = zombie.getComponent(WandererComponent.class);
-            wandererComponent.playDeathAnimation(spawnZombiePosition);
-            wandererComponent.playBloodTraceAnimation(spawnZombiePosition);
-        }
-
-        zombie.removeFromWorld();
-    }
-
     @Override
     protected void initUI() {
         var playerScore = getip("score").asString();
@@ -329,59 +305,45 @@ public class ZombieApp extends GameApplication {
             }
         }
 
+
+
         if (geti("numWanderers") < 1 && geti("numSpies") < 1) {
             Text levelMessage = getUIFactoryService().newText("Hordes of zombies coming up...", Color.DARKRED, 38);
-            Text bonusMessage = getUIFactoryService().newText("+ BONUS SCORE", Color.GOLD, 52);
+            Text scoreBonusMessage = getUIFactoryService().newText("+ BONUS SCORE", Color.GOLD, 52);
 
             if (geti("score") <= 5000) {
 
                 setCenteredText(levelMessage);
-                setCenteredText(bonusMessage, seconds(4));
+                setCenteredText(scoreBonusMessage, seconds(4));
 
-                spawn("ammo", random(50, getAppWidth() - 50), random(50, getAppHeight() - 50) );
-                spawn("heart", random(50, getAppWidth() - 50), random(50, getAppHeight() - 50) );
+                spawnRunner("ammo", 1);
+                spawnRunner("heart", 1);
 
-                inc("buff", +1);
-                inc("score", random(100, 500));
-
-                inc("numWanderers", geti("buff"));
-                inc("numSpies", geti("buff"));
+                incrementLevelRunner(1, 100, 500, 1);
 
             } else if (geti("score") > 5000 && geti("score") <= 10000) {
 
                 setCenteredText(levelMessage);
-                setCenteredText(bonusMessage, seconds(4));
+                setCenteredText(scoreBonusMessage, seconds(4));
 
-                spawn("ammo", random(50, getAppWidth() - 50), random(50, getAppHeight() - 50) );
-                spawn("ammo", random(50, getAppWidth() - 50), random(50, getAppHeight() - 50) );
-                spawn("heart", random(50, getAppWidth() - 50), random(50, getAppHeight() - 50) );
+                spawnRunner("ammo", 2);
+                spawnRunner("heart", 1);
+                spawnRunner("shotgun", 1);
 
-                spawn("shotgun", random(50, getAppWidth() - 50), random(50, getAppHeight() - 50) );
+                inc("lives", 1);
 
-                inc("buff", +2);
-                inc("score", random(500, 1000));
-
-                inc("numWanderers", +2 * geti("buff"));
-                inc("numSpies", +2 * geti("buff"));
+                incrementLevelRunner(2, 500, 1000, 2);
 
             } else {
 
                 setCenteredText(levelMessage);
-                setCenteredText(bonusMessage, seconds(4));
+                setCenteredText(scoreBonusMessage, seconds(4));
 
-                spawn("ammo", random(50, getAppWidth() - 50), random(50, getAppHeight() - 50) );
-                spawn("ammo", random(50, getAppWidth() - 50), random(50, getAppHeight() - 50) );
-                spawn("ammo", random(50, getAppWidth() - 50), random(50, getAppHeight() - 50) );
-                spawn("heart", random(50, getAppWidth() - 50), random(50, getAppHeight() - 50) );
-                spawn("heart", random(50, getAppWidth() - 50), random(50, getAppHeight() - 50) );
+                spawnRunner("ammo", 4);
+                spawnRunner("heart",2);
+                spawnRunner("shotgun",1);
 
-                spawn("shotgun", random(50, getAppWidth() - 50), random(50, getAppHeight() - 50) );
-
-                inc("buff", +1);
-                inc("score", random(500, 1000));
-
-                inc("numWanderers", +2 * geti("buff"));
-                inc("numSpies", +2 * geti("buff"));
+                incrementLevelRunner(1, 500, 1000, 2);
 
             }
 

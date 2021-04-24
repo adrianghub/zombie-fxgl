@@ -32,7 +32,7 @@ public class WandererComponent extends Component {
         emitter.setBlendMode(BlendMode.DARKEN);
         emitter.setStartColor(Color.color(1.0, 0.2, 0.2, 0.5));
         emitter.setEndColor(Color.DARKRED);
-        emitter.setMaxEmissions(random(1, 3));
+        emitter.setMaxEmissions(1);
         emitter.setEmissionRate(0.5);
 
         entityBuilder()

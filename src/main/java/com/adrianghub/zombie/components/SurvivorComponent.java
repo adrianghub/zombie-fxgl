@@ -111,6 +111,7 @@ public class SurvivorComponent extends Component {
                 .at(entity.getPosition())
                 .with(new ParticleComponent(emitter))
                 .with(new ExpireCleanComponent(Duration.seconds(3)))
+                .collidable()
                 .buildAndAttach();
 
         animationBuilder()
