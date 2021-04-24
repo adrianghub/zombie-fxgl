@@ -34,6 +34,7 @@ public class BossComponent extends Component {
     @Override
     public void onAdded() {
         adjustVelocity(0.016);
+        inc("numBosses", -1);
     }
 
     @Override
@@ -54,8 +55,8 @@ public class BossComponent extends Component {
 
     private void followPlayer(double tpf) {
         Entity player = getEntity().getWorld().getSingleton(ZombieApp.EntityType.SURVIVOR);
-        if (getEntity().distance(player) < 150) {
-            getEntity().translateTowards(player.getCenter(), 50 * tpf);
+        if (getEntity().distance(player) < 50) {
+            getEntity().translateTowards(player.getCenter(), 1000 * tpf);
         }
     }
 

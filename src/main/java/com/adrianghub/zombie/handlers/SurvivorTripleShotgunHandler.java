@@ -11,6 +11,7 @@ import static com.adrianghub.zombie.ZombieApp.EntityType.SURVIVOR;
 import static com.adrianghub.zombie.factories.WeaponsFactory.WeaponType.TRIPLE_SHOTGUN;
 import static com.almasb.fxgl.dsl.FXGL.animationBuilder;
 import static com.almasb.fxgl.dsl.FXGL.set;
+import static com.almasb.fxgl.dsl.FXGLForKtKt.inc;
 
 public class SurvivorTripleShotgunHandler extends CollisionHandler {
 
@@ -24,6 +25,7 @@ public class SurvivorTripleShotgunHandler extends CollisionHandler {
         shotgun.getComponent(CollidableComponent.class).setValue(false);
 
         set("weaponType", TRIPLE_SHOTGUN);
+        inc("ammo", +25);
 
         animationBuilder()
                 .duration(Duration.seconds(0.75))

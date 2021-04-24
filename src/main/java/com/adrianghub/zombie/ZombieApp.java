@@ -87,9 +87,10 @@ public class ZombieApp extends GameApplication {
         vars.put("time", 0.0);
         vars.put("score", 0);
         vars.put("lives", LIVES_AMOUNT);
-        vars.put("ammo", 50);
+        vars.put("ammo", 25);
         vars.put("numWanderers", WANDERERS_AMOUNT);
         vars.put("numSpies", SPIES_AMOUNT);
+        vars.put("numBosses", 1);
         vars.put("buff", 1);
         vars.put("weaponType", WeaponType.PISTOL);
     }
@@ -370,6 +371,7 @@ public class ZombieApp extends GameApplication {
 
         if (geti("numWanderers") < 1 && geti("numSpies") < 1) {
             Text levelMessage = getUIFactoryService().newText("Hordes of zombies coming up...", Color.DARKRED, 38);
+            Text bossMessage = getUIFactoryService().newText("Suddenly you've heard some weird noise from the ground...", Color.DARKRED, 38);
             Text scoreBonusMessage = getUIFactoryService().newText("+ BONUS SCORE", Color.GOLD, 52);
 
             if (geti("score") <= 5000) {
@@ -382,36 +384,60 @@ public class ZombieApp extends GameApplication {
 
                 incrementLevelRunner(1, 100, 500, 1);
 
-            } else if (geti("score") > 5000 && geti("score") <= 10000) {
+            } else if (geti("score") > 5000 && geti("score") <= 7000) {
 
-                setCenteredText(levelMessage);
+                setCenteredText(bossMessage);
                 setCenteredText(scoreBonusMessage, seconds(4));
 
                 spawnRunner("ammo", 2);
                 spawnRunner("heart", 1);
                 spawnRunner("shotgun", 1);
 
-                Entity boss = spawn("boss",0 ,0);
-                BossComponent bossComponent = boss.getComponent(BossComponent.class);
-                bossComponent.playSpawnAnimation();
+                inc("numBosses", +1);
 
-                inc("lives", 1);
+                if (geti("numBosses") >= 1) {
+                    Entity boss = spawn("boss",0 ,0);
+                    BossComponent bossComponent = boss.getComponent(BossComponent.class);
+                    bossComponent.playSpawnAnimation();
+                }
 
-                incrementLevelRunner(2, 500, 1000, 2);
+                inc("numWanderers", +2);
+                inc("numSpies", +2);
+                inc("score", random(100, 1000));
 
-            } else {
+            } else if (geti("score") > 7000 && geti("score") <= 1500) {
 
                 setCenteredText(levelMessage);
                 setCenteredText(scoreBonusMessage, seconds(4));
 
-                spawnRunner("ammo", 4);
+                spawnRunner("ammo", 2);
                 spawnRunner("heart",2);
                 spawnRunner("shotgun",1);
 
-                incrementLevelRunner(1, 500, 1000, 2);
+                incrementLevelRunner(1, 500, 1000, 1);
 
+            } else {
+                setCenteredText(levelMessage);
+                setCenteredText(scoreBonusMessage, seconds(4));
+
+                spawnRunner("ammo", 2);
+                spawnRunner("heart",2);
+                spawnRunner("shotgun",1);
+
+                inc("numBosses", +1);
+
+                if (geti("numBosses") >= 1) {
+                    Entity boss = spawn("boss",0 ,0);
+                    BossComponent bossComponent = boss.getComponent(BossComponent.class);
+                    bossComponent.playSpawnAnimation();
+
+                    if (geti("numBosses") == 2) {
+                        inc("numBosses", -2);
+                    }
+                }
+
+                incrementLevelRunner(1, 500, 1000, 1);
             }
-
         }
     }
 

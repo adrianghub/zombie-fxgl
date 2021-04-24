@@ -12,7 +12,11 @@ import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.EntityFactory;
 import com.almasb.fxgl.entity.SpawnData;
 import com.almasb.fxgl.entity.Spawns;
+import com.almasb.fxgl.particle.ParticleComponent;
+import com.almasb.fxgl.particle.ParticleEmitter;
+import com.almasb.fxgl.particle.ParticleEmitters;
 import javafx.geometry.Rectangle2D;
+import javafx.scene.effect.BlendMode;
 import javafx.scene.paint.Color;
 
 import static com.adrianghub.zombie.Config.*;
@@ -82,16 +86,26 @@ public class CharactersFactory implements EntityFactory {
 
         var hpView = createHpView(hp, Color.ORANGERED);
 
+        ParticleEmitter emitter = ParticleEmitters.newFireEmitter();
+        emitter.setStartColor(Color.color(1.0, 1.0, 0.5, 0.5));
+        emitter.setEndColor(Color.color(1.0, 1.0, 1.0, 0.5));
+
+        emitter.setBlendMode(BlendMode.DIFFERENCE);
+        emitter.setSize(5, 55);
+        emitter.setEmissionRate(1);
+
         return entityBuilder(data)
                 .type(BOSS)
-                .viewWithBBox("zombie-spy.png")
+                .viewWithBBox("zombie-boss.png")
                 .view(hpView)
                 .with(hp)
+                .with(new ParticleComponent(emitter))
+                .zIndex(100)
                 .collidable()
                 .with(new RandomMoveComponent(
                         new Rectangle2D(0, 0,
-                                getAppWidth(), getAppHeight()), 150))
-                .with(new BossComponent(FXGL.<ZombieApp>getAppCast().getSurvivor(), SPY_SPEED))
+                                getAppWidth(), getAppHeight()), 50))
+                .with(new BossComponent(FXGL.<ZombieApp>getAppCast().getSurvivor(), 100))
                 .build();
     }
 }

@@ -23,6 +23,7 @@ public class SurvivorShotgunHandler extends CollisionHandler {
         shotgun.getComponent(CollidableComponent.class).setValue(false);
 
         set("weaponType", SHOTGUN);
+        inc("ammo", +25);
 
         animationBuilder()
                 .duration(Duration.seconds(0.75))
