@@ -4,6 +4,10 @@ import com.adrianghub.zombie.components.SpyComponent;
 import com.adrianghub.zombie.components.SurvivorComponent;
 import com.adrianghub.zombie.components.WandererComponent;
 import com.adrianghub.zombie.factories.*;
+import com.adrianghub.zombie.handlers.SurvivorAmmoHandler;
+import com.adrianghub.zombie.handlers.SurvivorHeartHandler;
+import com.adrianghub.zombie.handlers.SurvivorShotgunHandler;
+import com.adrianghub.zombie.handlers.SurvivorTripleShotgunHandler;
 import com.adrianghub.zombie.menu.ZombieMainMenu;
 import com.adrianghub.zombie.service.HighScoreService;
 import com.almasb.fxgl.app.GameApplication;
@@ -23,11 +27,13 @@ import javafx.geometry.Point2D;
 import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
 import static com.adrianghub.zombie.Config.*;
 import static com.adrianghub.zombie.ZombieApp.EntityType.*;
+import static com.adrianghub.zombie.factories.WeaponsFactory.*;
 import static com.adrianghub.zombie.ui.UIText.*;
 import static com.almasb.fxgl.dsl.FXGL.*;
 import static javafx.util.Duration.seconds;
@@ -55,11 +61,13 @@ public class ZombieApp extends GameApplication {
         settings.addEngineService(HighScoreService.class);
         settings.setMainMenuEnabled(true);
         settings.setSceneFactory(new SceneFactory() {
+            @NotNull
             @Override
             public FXGLMenu newMainMenu() {
                 return new ZombieMainMenu();
             }
 
+            @NotNull
             @Override
             public FXGLMenu newGameMenu() {
                 return new SimpleGameMenu();
