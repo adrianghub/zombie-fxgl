@@ -2,6 +2,7 @@ package com.adrianghub.zombie.handlers;
 
 import com.almasb.fxgl.animation.Interpolators;
 import com.almasb.fxgl.entity.Entity;
+import com.almasb.fxgl.entity.SpawnData;
 import com.almasb.fxgl.entity.components.CollidableComponent;
 import com.almasb.fxgl.physics.CollisionHandler;
 import javafx.geometry.Point2D;
@@ -9,9 +10,9 @@ import javafx.util.Duration;
 
 import static com.adrianghub.zombie.ZombieApp.EntityType.SURVIVOR;
 import static com.adrianghub.zombie.factories.WeaponsFactory.WeaponType.TRIPLE_SHOTGUN;
-import static com.almasb.fxgl.dsl.FXGL.animationBuilder;
-import static com.almasb.fxgl.dsl.FXGL.set;
+import static com.almasb.fxgl.dsl.FXGL.*;
 import static com.almasb.fxgl.dsl.FXGLForKtKt.inc;
+import static javafx.util.Duration.seconds;
 
 public class SurvivorTripleShotgunHandler extends CollisionHandler {
 
@@ -26,6 +27,7 @@ public class SurvivorTripleShotgunHandler extends CollisionHandler {
 
         set("weaponType", TRIPLE_SHOTGUN);
         inc("ammo", +20);
+        spawn("textScore", new SpawnData(shotgun.getPosition()).put("text", "new weapon: Triple Shotgun"));
 
         animationBuilder()
                 .duration(Duration.seconds(0.75))

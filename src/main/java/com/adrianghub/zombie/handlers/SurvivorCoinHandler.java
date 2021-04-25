@@ -4,6 +4,7 @@ import com.adrianghub.zombie.ZombieApp;
 import com.almasb.fxgl.animation.Interpolators;
 import com.almasb.fxgl.core.math.FXGLMath;
 import com.almasb.fxgl.entity.Entity;
+import com.almasb.fxgl.entity.SpawnData;
 import com.almasb.fxgl.entity.components.CollidableComponent;
 import com.almasb.fxgl.physics.CollisionHandler;
 import javafx.geometry.Point2D;
@@ -25,6 +26,7 @@ public class SurvivorCoinHandler extends CollisionHandler {
         coin.getComponent(CollidableComponent.class).setValue(false);
 
         inc("score", +100);
+        spawn("textScore", new SpawnData(coin.getPosition()).put("text", "+100 coins"));
 
         animationBuilder()
                 .duration(Duration.seconds(0.75))

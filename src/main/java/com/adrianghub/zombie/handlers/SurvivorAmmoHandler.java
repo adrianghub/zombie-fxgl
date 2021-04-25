@@ -2,6 +2,7 @@ package com.adrianghub.zombie.handlers;
 
 import com.almasb.fxgl.animation.Interpolators;
 import com.almasb.fxgl.entity.Entity;
+import com.almasb.fxgl.entity.SpawnData;
 import com.almasb.fxgl.entity.components.CollidableComponent;
 import com.almasb.fxgl.physics.CollisionHandler;
 import javafx.geometry.Point2D;
@@ -26,17 +27,22 @@ public class SurvivorAmmoHandler extends CollisionHandler {
 
         if (geti("score") > 25000) {
             inc("ammo", + 50);
+            spawn("textScore", new SpawnData(ammo.getPosition()).put("text", "+50 ammo"));
             set("weaponType", TRIPLE_SHOTGUN);
         }
         else if (geti("score") > 10000) {
             inc("ammo", + 40);
+            spawn("textScore", new SpawnData(ammo.getPosition()).put("text", "+40 ammo"));
             set("weaponType", SHOTGUN);
         }
         else if (geti("score") > 5000) {
             inc("ammo", + 25);
+            spawn("textScore", new SpawnData(ammo.getPosition()).put("text", "+25 ammo"));
+
             set("weaponType", SHOTGUN);
         } else {
             inc("ammo", +25);
+            spawn("textScore", new SpawnData(ammo.getPosition()).put("text", "+25 ammo"));
         }
 
         animationBuilder()

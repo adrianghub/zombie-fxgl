@@ -41,7 +41,7 @@ public class UIPartsFactory implements EntityFactory {
                 .build();
 
         animationBuilder()
-                .duration(seconds(1))
+                .duration(seconds(0.75))
                 .interpolator(Interpolators.CUBIC.EASE_OUT())
                 .translate(e)
                 .from(new Point2D(data.getX(), data.getY()))

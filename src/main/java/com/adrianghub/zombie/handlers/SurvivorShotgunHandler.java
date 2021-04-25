@@ -2,6 +2,7 @@ package com.adrianghub.zombie.handlers;
 
 import com.almasb.fxgl.animation.Interpolators;
 import com.almasb.fxgl.entity.Entity;
+import com.almasb.fxgl.entity.SpawnData;
 import com.almasb.fxgl.entity.components.CollidableComponent;
 import com.almasb.fxgl.physics.CollisionHandler;
 import javafx.geometry.Point2D;
@@ -10,6 +11,7 @@ import javafx.util.Duration;
 import static com.adrianghub.zombie.ZombieApp.EntityType.SURVIVOR;
 import static com.adrianghub.zombie.factories.WeaponsFactory.WeaponType.SHOTGUN;
 import static com.almasb.fxgl.dsl.FXGL.*;
+import static javafx.util.Duration.seconds;
 
 public class SurvivorShotgunHandler extends CollisionHandler {
 
@@ -24,6 +26,7 @@ public class SurvivorShotgunHandler extends CollisionHandler {
 
         set("weaponType", SHOTGUN);
         inc("ammo", +10);
+        spawn("textScore", new SpawnData(shotgun.getPosition()).put("text", "new weapon: Shotgun"));
 
         animationBuilder()
                 .duration(Duration.seconds(0.75))
