@@ -38,7 +38,7 @@ public class ZombieGameMenu extends FXGLMenu {
     public ZombieGameMenu() {
         super(MenuType.MAIN_MENU);
 
-        getContentRoot().getChildren().setAll(new Rectangle(getAppWidth(), getAppHeight(), Color.color(0.2, 0, 0.2, 0.1)));
+        getContentRoot().getChildren().setAll(new Rectangle(getAppWidth(), getAppHeight(), Color.color(0.2, 0, 0, 0.2)));
 
         var title = getUIFactoryService().newText(getSettings().getTitle(), Color.web("FF7433"), 56.0);
         title.setStroke(Color.web("291418"));
@@ -132,7 +132,7 @@ public class ZombieGameMenu extends FXGLMenu {
 
     private static class MenuButton extends Parent {
         MenuButton(String name, Runnable action) {
-            var text = getUIFactoryService().newText(name, Color.WHITESMOKE, 36.0);
+            var text = getUIFactoryService().newText(name, Color.WHITESMOKE, 52.0);
             text.setStrokeWidth(1.5);
             text.strokeProperty().bind(text.fillProperty());
 
