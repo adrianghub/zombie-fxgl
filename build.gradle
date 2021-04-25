@@ -6,7 +6,6 @@ plugins {
 }
 
 group 'org.example'
-version '1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
@@ -14,9 +13,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
     implementation 'com.github.almasb:fxgl:11.15'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
     implementation('org.controlsfx:controlsfx:11.0.3') {
         exclude group: 'org.openjfx'
     }
@@ -36,9 +33,44 @@ application {
 }
 
 
+ext.os = org.gradle.internal.os.OperatingSystem.current()
+
 jlink {
     options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
     launcher {
         name = 'zombie-fxgl'
+    }
+    jpackage {
+        // Let the plugin detect the path to the JDK providing the jpackage tool by searching the locations indicated by:
+        //  - the badass.jlink.jpackage.home system property
+        //  - the BADASS_JLINK_JPACKAGE_HOME environment variable
+        //  - the java.home system property
+        //  - the JAVA_HOME environment variable
+        //
+        //   OR
+        //
+        // explicitly configure the below property:
+        jpackageHome = 'C:/Program Files/Java/jdk-16.0.1'
+        //
+        //   OR
+        //
+        // download and extract a JDK that contains the jpackage tool by setting the system property 'download.jpackage':
+        if(Boolean.getBoolean('download.jpackage')) {
+            jpackageHome = downloadJPackage()
+        }
+
+        if(os.macOsX) {
+            jvmArgs = ["-Duser.dir=/tmp"]
+            installerOptions = [
+//                '--mac-sign',
+//                '--mac-signing-key-user-name', System.getenv('SIGNING_KEY_USER_NAME'),
+//                '--mac-signing-keychain', System.getenv('SIGNING_KEYCHAIN_PATH')
+            ]
+        } else if(os.windows) {
+            installerOptions = ['--win-per-user-install', '--win-dir-chooser', '--win-menu']
+//        } else {
+//            installerType = 'deb' // 'rpm'
+        }
+        installerOptions += '--verbose'
     }
 }
