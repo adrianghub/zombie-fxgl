@@ -13,8 +13,7 @@ import static com.adrianghub.zombie.ZombieApp.*;
 import static com.adrianghub.zombie.ZombieApp.EntityType.*;
 import static com.adrianghub.zombie.ZombieApp.EntityType.HEART;
 import static com.adrianghub.zombie.ZombieApp.EntityType.SURVIVOR;
-import static com.almasb.fxgl.dsl.FXGL.animationBuilder;
-import static com.almasb.fxgl.dsl.FXGL.spawn;
+import static com.almasb.fxgl.dsl.FXGL.*;
 import static com.almasb.fxgl.dsl.FXGLForKtKt.geti;
 import static com.almasb.fxgl.dsl.FXGLForKtKt.inc;
 
@@ -29,6 +28,7 @@ public class SurvivorLifeHandler extends CollisionHandler {
 
 
         inc("lives", +1);
+        play("breath.wav");
         spawn("textScore", new SpawnData(life.getPosition()).put("text", "+1 life"));
 
         animationBuilder()

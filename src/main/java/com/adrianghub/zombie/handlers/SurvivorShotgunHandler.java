@@ -26,6 +26,7 @@ public class SurvivorShotgunHandler extends CollisionHandler {
 
         set("weaponType", SHOTGUN);
         inc("ammo", +10);
+        play("change-gun.wav");
         spawn("textScore", new SpawnData(shotgun.getPosition()).put("text", "new weapon: Shotgun"));
 
         animationBuilder()

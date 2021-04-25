@@ -18,6 +18,7 @@ import java.util.List;
 
 import static com.almasb.fxgl.dsl.FXGL.animationBuilder;
 import static com.almasb.fxgl.dsl.FXGL.entityBuilder;
+import static com.almasb.fxgl.dsl.FXGL.play;
 import static com.almasb.fxgl.dsl.FXGL.spawn;
 import static com.almasb.fxgl.dsl.FXGLForKtKt.*;
 
@@ -59,6 +60,7 @@ public class SurvivorComponent extends Component {
                         new Point2D(bulletSpawnDirection.getY(), -bulletSpawnDirection.getX())
                                 .normalize()
                                 .multiply(10)), bulletSpawnDirection));
+                play("triple-shotgun.wav");
                 if (geti("ammo") > 2) {
                     inc("ammo", -1);
                 }
@@ -70,6 +72,7 @@ public class SurvivorComponent extends Component {
                         (new Point2D(bulletSpawnDirection.getY(), -bulletSpawnDirection.getX())
                         .normalize()
                         .multiply(10)), bulletSpawnDirection));
+                play("shotgun.wav");
                 if (geti("ammo") > 1) {
                     inc("ammo", -1);
                 }
@@ -77,6 +80,7 @@ public class SurvivorComponent extends Component {
             case PISTOL:
 
                 bullets.add(spawnBullet(zombiePosition, bulletSpawnDirection));
+                play("pistol.wav");
                 inc("ammo", -1);
                 break;
 
@@ -92,8 +96,6 @@ public class SurvivorComponent extends Component {
             var data = new SpawnData(position.getX(), position.getY())
                     .put("dir", direction);
             var e =  spawn("bullet", data);
-
-            WeaponsFactory.respawnBullet(e, data);
 
             return e;
     }

@@ -11,7 +11,6 @@ import com.almasb.fxgl.app.GameApplication;
 import com.almasb.fxgl.app.GameSettings;
 import com.almasb.fxgl.app.scene.FXGLMenu;
 import com.almasb.fxgl.app.scene.SceneFactory;
-import com.almasb.fxgl.app.scene.SimpleGameMenu;
 import com.almasb.fxgl.dsl.components.HealthIntComponent;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.SpawnData;
@@ -29,7 +28,7 @@ import java.util.Map;
 
 import static com.adrianghub.zombie.Config.*;
 import static com.adrianghub.zombie.ZombieApp.EntityType.*;
-import static com.adrianghub.zombie.factories.WeaponsFactory.*;
+import static com.adrianghub.zombie.factories.WeaponsFactory.WeaponType;
 import static com.adrianghub.zombie.handlers.ActionHandler.*;
 import static com.adrianghub.zombie.ui.UIText.*;
 import static com.almasb.fxgl.dsl.FXGL.*;
@@ -79,6 +78,7 @@ public class ZombieApp extends GameApplication {
         getAssetLoader().loadTexture("explosion.png", 80 * 48, 80);
 
         getSettings().setGlobalMusicVolume(0.5);
+        getSettings().setGlobalSoundVolume(0.2);
 
         loopBGM("dark-forest.mp3");
     }
@@ -211,9 +211,11 @@ public class ZombieApp extends GameApplication {
 
             @Override
             protected void onCollisionBegin(Entity survivor, Entity zombie) {
-
                 killZombie(zombie);
                 spawn("dangerOverlay");
+
+                play("zombie-biting.wav");
+                play("scream.wav");
 
                 var hp = survivor.getComponent(HealthIntComponent.class);
                 hp.setValue(hp.getValue() - 1);
@@ -225,6 +227,7 @@ public class ZombieApp extends GameApplication {
                     inc("lives", -1);
 
                     survivor.setPosition(getAppWidth() / 2.0 - 15, getAppHeight() / 2.0 - 15);
+                    play("respawn.wav");
                     survivorComponent.playSpawnAnimation();
                     hp.setValue(3);
                 }
@@ -239,6 +242,9 @@ public class ZombieApp extends GameApplication {
                 var bossHP = zombie.getComponent(HealthIntComponent.class);
                 bossHP.setValue(bossHP.getValue() - 1);
 
+                play("zombie-biting.wav");
+                play("scream.wav");
+
                 killZombie(zombie);
                 spawn("dangerOverlay");
 
@@ -252,6 +258,7 @@ public class ZombieApp extends GameApplication {
                     inc("lives", -1);
 
                     survivor.setPosition(getAppWidth() / 2.0 - 15, getAppHeight() / 2.0 - 15);
+                    play("respawn.wav");
                     survivorComponent.playSpawnAnimation();
                     hp.setValue(3);
                 }
@@ -268,7 +275,7 @@ public class ZombieApp extends GameApplication {
         physics.addCollisionHandler(new SurvivorShotgunHandler());
         physics.addCollisionHandler(new SurvivorTripleShotgunHandler());
 
-        CollisionHandler bulletZombie = new CollisionHandler(BULLET, WANDERER) {
+        CollisionHandler bulletWanderer = new CollisionHandler(BULLET, WANDERER) {
             @Override
             protected void onCollisionBegin(Entity bullet, Entity zombie) {
                 var hp = zombie.getComponent(HealthIntComponent.class);
@@ -278,6 +285,31 @@ public class ZombieApp extends GameApplication {
                     hp.damage(1);
                     return;
                 }
+
+                play("zombie-die" + (int)(Math.random() * 4 + 1) + ".wav");
+
+                spawn("textScore", new SpawnData(zombie.getPosition()).put("text", "+1 kill"));
+                bullet.removeFromWorld();
+
+                killZombie(zombie);
+
+                spawn("coin", zombie.getCenter());
+            }
+        };
+
+        CollisionHandler bulletSpy = new CollisionHandler(BULLET, SPY) {
+            @Override
+            protected void onCollisionBegin(Entity bullet, Entity zombie) {
+                var hp = zombie.getComponent(HealthIntComponent.class);
+
+                if (hp.getValue() > 1) {
+                    bullet.removeFromWorld();
+                    hp.damage(1);
+                    return;
+                }
+
+                play("zombie-die" + (int)(Math.random() * 4 + 1) + ".wav");
+                play("explode.wav");
 
                 spawn("textScore", new SpawnData(zombie.getPosition()).put("text", "+1 kill"));
                 bullet.removeFromWorld();
@@ -303,6 +335,8 @@ public class ZombieApp extends GameApplication {
                     return;
                 }
 
+                play("zombieboss-die.wav");
+
                 spawn("textScore", new SpawnData(zombie.getPosition()).put("text", "+1 kill"));
                 bullet.removeFromWorld();
 
@@ -322,9 +356,10 @@ public class ZombieApp extends GameApplication {
             }
         };
 
-        physics.addCollisionHandler(bulletZombie);
+        physics.addCollisionHandler(bulletWanderer);
+        physics.addCollisionHandler(bulletSpy);
         physics.addCollisionHandler(bulletZombieBoss);
-        physics.addCollisionHandler(bulletZombie.copyFor(BULLET, SPY));
+//        physics.addCollisionHandler(bulletWanderer.copyFor(BULLET, SPY));
     }
 
     @Override
@@ -360,6 +395,8 @@ public class ZombieApp extends GameApplication {
                 survivor.getX() <= 0 || survivor.getY() <= 0
         ) {
 
+            play("scream.wav");
+
             var hp = survivor.getComponent(HealthIntComponent.class);
             hp.setValue(hp.getValue() - 1);
             spawn("dangerOverlay");
@@ -370,7 +407,7 @@ public class ZombieApp extends GameApplication {
 
                 inc("lives", -1);
                 spawn("dangerOverlay");
-
+                play("respawn.wav");
                 survivorComponent.playSpawnAnimation();
 
                 hp.setValue(3);
@@ -390,6 +427,8 @@ public class ZombieApp extends GameApplication {
                 spawnRunner("ammo", 1);
                 spawnRunner("heart", 1);
 
+                play("zombie-says" + (int)(Math.random() * 5 + 1) + ".wav");
+
                 incrementLevelRunner(1, 100, 500, 1);
 
             } else if (geti("score") > 5000 && geti("score") <= 7000) {
@@ -407,6 +446,8 @@ public class ZombieApp extends GameApplication {
                     bossComponent.playSpawnAnimation();
                 }
 
+                play("zombie-boss.wav");
+
                 inc("numWanderers", +2);
                 inc("numSpies", +2);
                 inc("score", random(100, 1000));
@@ -420,15 +461,17 @@ public class ZombieApp extends GameApplication {
                 spawnRunner("heart",2);
                 spawnRunner("shotgun",1);
 
+                play("zombie-says" + (int)(Math.random() * 5 + 1) + ".wav");
+
                 incrementLevelRunner(1, 500, 1000, 1);
 
             } else if (geti("score") > 15000 && geti("score") <= 25000) {
                 setCenteredText(levelMessage);
                 setCenteredText(scoreBonusMessage, seconds(4));
 
-                spawnRunner("ammo", 2);
-                spawnRunner("heart",2);
-                spawnRunner("shotgun",1);
+                spawnRunner("ammo", 3);
+                spawnRunner("heart",3);
+                spawnRunner("shotgun",2);
 
                 inc("numBosses", +1);
 
@@ -441,16 +484,19 @@ public class ZombieApp extends GameApplication {
                     bossComponent.playSpawnAnimation();
                 }
 
+                play("zombie-says" + (int)(Math.random() * 5 + 1) + ".wav");
+
                 incrementLevelRunner(1, 500, 1000, 1);
             } else {
                 setCenteredText(levelMessage);
                 setCenteredText(scoreBonusMessage, seconds(4));
 
-                spawnRunner("ammo", 2);
-                spawnRunner("heart",2);
-                spawnRunner("shotgun",1);
+                spawnRunner("ammo", 4);
+                spawnRunner("heart",4);
+                spawnRunner("triple-shotgun",2);
 
                 inc("numBosses", +1);
+
 
                 if (geti("numBosses") >= 1) {
                     if (geti("numBosses") > 4) {
@@ -460,6 +506,8 @@ public class ZombieApp extends GameApplication {
                     BossComponent bossComponent = boss.getComponent(BossComponent.class);
                     bossComponent.playSpawnAnimation();
                 }
+
+                play("zombie-says" + (int)(Math.random() * 5 + 1) + ".wav");
 
                 incrementLevelRunner(1, 500, 1000, 1);
             }

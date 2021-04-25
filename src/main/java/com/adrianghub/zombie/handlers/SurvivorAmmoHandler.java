@@ -24,6 +24,7 @@ public class SurvivorAmmoHandler extends CollisionHandler {
         ammo.getComponent(CollidableComponent.class).setValue(false);
 
         set("weaponType", PISTOL);
+        play("collecting-coin.wav");
 
         if (geti("score") > 25000) {
             inc("ammo", + 50);

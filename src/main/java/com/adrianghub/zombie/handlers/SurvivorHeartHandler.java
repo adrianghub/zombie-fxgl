@@ -10,6 +10,7 @@ import javafx.util.Duration;
 import static com.adrianghub.zombie.ZombieApp.EntityType.HEART;
 import static com.adrianghub.zombie.ZombieApp.EntityType.SURVIVOR;
 import static com.almasb.fxgl.dsl.FXGL.animationBuilder;
+import static com.almasb.fxgl.dsl.FXGL.play;
 
 public class SurvivorHeartHandler extends CollisionHandler {
 
@@ -24,6 +25,7 @@ public class SurvivorHeartHandler extends CollisionHandler {
 
         if (hp.getValue() < 3) {
             hp.setValue(hp.getValue() + 1);
+            play("breath.wav");
         }
 
         animationBuilder()

@@ -44,23 +44,6 @@ public class WeaponsFactory implements EntityFactory {
                 .build();
     }
 
-    // this allows to "reset" the bullet after it is returned from the pool
-    public static void respawnBullet(Entity entity, SpawnData data) {
-
-        entity.setOpacity(1);
-
-        entity.removeComponent(ExpireCleanComponent.class);
-
-        var expireClean = new ExpireCleanComponent(Duration.seconds(0.5)).animateOpacity();
-        expireClean.pause();
-
-        entity.addComponent(expireClean);
-
-        Point2D dir = data.get("dir");
-
-        entity.getComponent(ProjectileComponent.class).setDirection(dir);
-    }
-
     @Spawns("shotgun")
     public Entity newShotgun(SpawnData data) {
 

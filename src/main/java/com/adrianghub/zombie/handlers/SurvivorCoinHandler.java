@@ -26,6 +26,7 @@ public class SurvivorCoinHandler extends CollisionHandler {
         coin.getComponent(CollidableComponent.class).setValue(false);
 
         inc("score", +100);
+        play("collecting-coin.wav");
         spawn("textScore", new SpawnData(coin.getPosition()).put("text", "+100 coins"));
 
         animationBuilder()

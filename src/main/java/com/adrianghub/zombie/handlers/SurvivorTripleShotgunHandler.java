@@ -27,6 +27,7 @@ public class SurvivorTripleShotgunHandler extends CollisionHandler {
 
         set("weaponType", TRIPLE_SHOTGUN);
         inc("ammo", +20);
+        play("change-gun.wav");
         spawn("textScore", new SpawnData(shotgun.getPosition()).put("text", "new weapon: Triple Shotgun"));
 
         animationBuilder()
