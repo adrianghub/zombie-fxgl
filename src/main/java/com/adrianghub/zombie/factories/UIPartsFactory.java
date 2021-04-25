@@ -16,21 +16,6 @@ import static javafx.util.Duration.seconds;
 
 public class UIPartsFactory implements EntityFactory {
 
-    @Spawns("dangerOverlay")
-    public Entity newDOverlay(SpawnData data) {
-        var e = entityBuilder(data)
-                .view(new Rectangle(getAppWidth(), getAppHeight(), Color.color(0.375, 0, 0, 0.5)))
-                .with(new ExpireCleanComponent(seconds(0.5)).animateOpacity())
-                .build();
-
-        animationBuilder()
-                .duration(seconds(0.5))
-                .fadeOut(e)
-                .buildAndPlay();
-
-        return e;
-    }
-
     @Spawns("textScore")
     public Entity newTextS(SpawnData data) {
         String text = data.get("text");

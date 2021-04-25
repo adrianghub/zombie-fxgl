@@ -3,10 +3,8 @@ package com.adrianghub.zombie;
 import com.adrianghub.zombie.components.BossComponent;
 import com.adrianghub.zombie.components.SurvivorComponent;
 import com.adrianghub.zombie.factories.*;
-import com.adrianghub.zombie.handlers.SurvivorAmmoHandler;
-import com.adrianghub.zombie.handlers.SurvivorHeartHandler;
-import com.adrianghub.zombie.handlers.SurvivorShotgunHandler;
-import com.adrianghub.zombie.handlers.SurvivorTripleShotgunHandler;
+import com.adrianghub.zombie.handlers.*;
+import com.adrianghub.zombie.menu.ZombieGameMenu;
 import com.adrianghub.zombie.menu.ZombieMainMenu;
 import com.adrianghub.zombie.service.HighScoreService;
 import com.almasb.fxgl.app.GameApplication;
@@ -26,7 +24,6 @@ import javafx.geometry.Point2D;
 import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
@@ -44,7 +41,8 @@ public class ZombieApp extends GameApplication {
     private SurvivorComponent survivorComponent;
 
     public enum EntityType {
-        SURVIVOR, BULLET, LAVA, WANDERER, SPY, AMMO, HEART, BOSS
+        SURVIVOR, WANDERER, SPY, BOSS,
+        BULLET, LAVA, AMMO, LIFE, HEART, COIN
     }
 
     public Entity getSurvivor() {
@@ -58,19 +56,19 @@ public class ZombieApp extends GameApplication {
         settings.setFontUI("zombie.ttf");
         settings.setWidth(1440);
         settings.setHeight(800);
+        settings.setFullScreenAllowed(true);
         settings.addEngineService(HighScoreService.class);
         settings.setMainMenuEnabled(true);
+        settings.setGameMenuEnabled(true);
         settings.setSceneFactory(new SceneFactory() {
-            @NotNull
             @Override
             public FXGLMenu newMainMenu() {
                 return new ZombieMainMenu();
             }
 
-            @NotNull
             @Override
             public FXGLMenu newGameMenu() {
-                return new SimpleGameMenu();
+                return new ZombieGameMenu();
             }
         });
     }
@@ -79,6 +77,10 @@ public class ZombieApp extends GameApplication {
     protected void onPreInit() {
         // preload explosion sprite sheet
         getAssetLoader().loadTexture("explosion.png", 80 * 48, 80);
+
+        getSettings().setGlobalMusicVolume(0.5);
+
+        loopBGM("dark-forest.mp3");
     }
 
 
@@ -104,7 +106,9 @@ public class ZombieApp extends GameApplication {
         getGameWorld().addEntityFactory(new WeaponsFactory());
         getGameWorld().addEntityFactory(new AddonsFactory());
 
-        getGameScene().setBackgroundColor(Color.color(0.05, 0, 0.1, 0.65));
+        getGameScene().setBackgroundColor(Color.color(0.05, 0, 0.1, 0.5));
+
+        spawn("background");
 
         spawnRunner("heart", 1);
 
@@ -254,11 +258,13 @@ public class ZombieApp extends GameApplication {
             }
         };
 
-        physics.addCollisionHandler(survivorZombieBoss);
         physics.addCollisionHandler(survivorZombie);
+        physics.addCollisionHandler(survivorZombieBoss);
         physics.addCollisionHandler(survivorZombie.copyFor(SURVIVOR, SPY));
         physics.addCollisionHandler(new SurvivorAmmoHandler());
+        physics.addCollisionHandler(new SurvivorLifeHandler());
         physics.addCollisionHandler(new SurvivorHeartHandler());
+        physics.addCollisionHandler(new SurvivorCoinHandler());
         physics.addCollisionHandler(new SurvivorShotgunHandler());
         physics.addCollisionHandler(new SurvivorTripleShotgunHandler());
 
@@ -278,7 +284,7 @@ public class ZombieApp extends GameApplication {
 
                 killZombie(zombie);
 
-                inc("score", +100);
+                spawn("coin", zombie.getCenter());
             }
         };
 
@@ -303,12 +309,16 @@ public class ZombieApp extends GameApplication {
                 killZombie(zombie);
                 zombie.removeFromWorld();
 
-                inc("score", +1000);
+                spawnRunner("coin", 10);
 
                 spawnRunner("heart", 2);
                 spawnRunner("ammo", 2);
                 spawnRunner("shotgun", 1);
                 spawnRunner("triple-shotgun", 1);
+
+                if (geti("lives") < 3) {
+                    spawnRunner("life", 1);
+                }
             }
         };
 
@@ -400,7 +410,6 @@ public class ZombieApp extends GameApplication {
                 inc("numWanderers", +2);
                 inc("numSpies", +2);
                 inc("score", random(100, 1000));
-                inc("lives", +1);
 
             } else if (geti("score") > 7000 && geti("score") <= 15000) {
 
@@ -413,7 +422,7 @@ public class ZombieApp extends GameApplication {
 
                 incrementLevelRunner(1, 500, 1000, 1);
 
-            } else {
+            } else if (geti("score") > 15000 && geti("score") <= 25000) {
                 setCenteredText(levelMessage);
                 setCenteredText(scoreBonusMessage, seconds(4));
 
@@ -426,11 +435,30 @@ public class ZombieApp extends GameApplication {
                 if (geti("numBosses") >= 1) {
                     if (geti("numBosses") > 2) {
                         inc("numBosses", -4);
-                    } else {
-                        Entity boss = spawn("boss",0 ,0);
-                        BossComponent bossComponent = boss.getComponent(BossComponent.class);
-                        bossComponent.playSpawnAnimation();
                     }
+                    Entity boss = spawn("boss", 0, 0);
+                    BossComponent bossComponent = boss.getComponent(BossComponent.class);
+                    bossComponent.playSpawnAnimation();
+                }
+
+                incrementLevelRunner(1, 500, 1000, 1);
+            } else {
+                setCenteredText(levelMessage);
+                setCenteredText(scoreBonusMessage, seconds(4));
+
+                spawnRunner("ammo", 2);
+                spawnRunner("heart",2);
+                spawnRunner("shotgun",1);
+
+                inc("numBosses", +1);
+
+                if (geti("numBosses") >= 1) {
+                    if (geti("numBosses") > 4) {
+                        inc("numBosses", -4);
+                    }
+                    Entity boss = spawn("boss",0 ,0);
+                    BossComponent bossComponent = boss.getComponent(BossComponent.class);
+                    bossComponent.playSpawnAnimation();
                 }
 
                 incrementLevelRunner(1, 500, 1000, 1);
